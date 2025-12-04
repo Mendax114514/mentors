@@ -259,8 +259,8 @@ function EquipmentStore() {
                   {item.effects.studentWorkEfficiency && (
                     <div>工作效率: +{(item.effects.studentWorkEfficiency * 100).toFixed(0)}%</div>
                   )}
-                  {item.effects.studentLoyalty && (
-                    <div>忠诚度: +{(item.effects.studentLoyalty * 100).toFixed(0)}%</div>
+                  {typeof item.effects.studentLoyalty === 'number' && (
+                    <div>忠诚度: +{item.effects.studentLoyalty}</div>
                   )}
                 </div>
               </div>

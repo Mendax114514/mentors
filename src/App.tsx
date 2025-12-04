@@ -42,38 +42,38 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* 顶部导航栏 */}
       <nav className="bg-white shadow-lg border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center h-14">
+            <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap">
               <h1 className="text-2xl font-bold text-gray-900">校园导师模拟器</h1>
-              <div className="flex space-x-6">
+              <div className="flex gap-3 flex-nowrap">
                 <Link 
                   to="/" 
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   主界面
                 </Link>
                 <Link 
                   to="/students" 
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   学生管理
                 </Link>
                 <Link 
                   to="/projects" 
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   项目申请
                 </Link>
                 <Link 
                   to="/equipment" 
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   购买装备
                 </Link>
                 <Link 
                   to="/assessment" 
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   晋升考核
                 </Link>
@@ -101,7 +101,7 @@ function App() {
       </nav>
 
       {/* 主要内容区域 */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-4 px-2 sm:px-6 lg:px-8">
         <Outlet />
       </main>
       {msgQueue.length > 0 && (

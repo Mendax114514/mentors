@@ -87,7 +87,7 @@ function StudentManagement() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">忠诚度</span>
-                  <span className="font-medium">{student.loyalty.toFixed(0)}</span>
+                  <span className="font-medium">{student.loyalty.toFixed(1)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
