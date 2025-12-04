@@ -96,7 +96,7 @@ export const projects: Project[] = [
     },
     consumption: {
       academicScore: 0,
-      funding: 3,
+      funding: 2,
       reputation: 0,
       studentLoyalty: 5
     }
@@ -106,7 +106,7 @@ export const projects: Project[] = [
     name: '国际合作研究项目',
     description: '申请国际合作研究项目，需要较高的学术声誉和国际影响力',
     requiredAttributes: {
-      academicScore: 250,
+      academicScore: 220,
       funding: 20,
       reputation: 80,
       studentLoyalty: 0
@@ -114,9 +114,9 @@ export const projects: Project[] = [
     duration: 3,
     difficulty: 'hard',
     reward: {
-      academicScore: 12,
-      funding: 20,
-      reputation: 12,
+      academicScore: 25,
+      funding: 30,
+      reputation: 30,
       studentLoyalty: 5
     },
     consumption: {
@@ -140,15 +140,15 @@ export const projects: Project[] = [
     difficulty: 'medium',
     reward: {
       academicScore: 20,
-      funding: 12,
-      reputation: 10,
+      funding: 20,
+      reputation: 20,
       studentLoyalty: 4
     },
     consumption: {
       academicScore: 2,
       funding: 1,
       reputation: 0,
-      studentLoyalty: 16
+      studentLoyalty: 10
     }
   },
   {

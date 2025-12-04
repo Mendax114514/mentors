@@ -2,6 +2,7 @@ import { useGameStore } from '../store/gameStore'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { events } from '../data/events'
+import { endings } from '../data/endings'
 
 function MainGame() {
   const { 
@@ -19,6 +20,7 @@ function MainGame() {
 
   const [modalEventId, setModalEventId] = useState<string | null>(null)
   const modalEvent = useMemo(() => events.find(e => e.id === modalEventId), [modalEventId])
+  const chainEventSet = useMemo(() => new Set(endings.flatMap(e => e.sequence ?? [])), [])
 
   useEffect(() => {
     if (!lastYearActions.eventSelected && !modalEventId) {
@@ -33,8 +35,10 @@ function MainGame() {
       if (q.length) {
         setModalEventId(q[0])
       } else {
-        const r = Math.floor(Math.random() * events.length)
-        setModalEventId(events[r].id)
+        const candidates = events.filter(e => !chainEventSet.has(e.id))
+        const pool = candidates.length ? candidates : events
+        const r = Math.floor(Math.random() * pool.length)
+        setModalEventId(pool[r].id)
       }
     }
   }, [lastYearActions.eventSelected, modalEventId])

@@ -64,8 +64,8 @@ export const assessmentWeights = {
   studentLoyalty: 0.1,
 };
 export const assessmentThresholds: Record<number, number> = {
-  5: 55,
-  10: 100,
+  5: 70,
+  10: 110,
   20: 240,
   30: 360,
   40: 480,
