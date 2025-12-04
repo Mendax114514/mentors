@@ -5,7 +5,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_1',
     name: '高级实验设备',
     description: '购买先进的实验设备，显著提升学生的工作效率',
-    price: 18,
+    price: 15,
     effects: {
       studentWorkEfficiency: 0.35
     },
@@ -15,7 +15,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_1a',
     name: '超高端工作站',
     description: '顶配工作站，显著提升整体效率',
-    price: 30,
+    price: 26,
     effects: { studentWorkEfficiency: 0.7 },
     type: 'equipment'
   },
@@ -23,7 +23,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_2',
     name: '专业软件许可',
     description: '购买专业软件的许可证，提高学生研究效率',
-    price: 9,
+    price: 7,
     effects: {
       studentWorkEfficiency: 0.15
     },
@@ -33,7 +33,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_3',
     name: '学术数据库订阅',
     description: '订阅重要的学术数据库，为学生提供丰富的研究资源',
-    price: 12,
+    price: 10,
     effects: {
       studentWorkEfficiency: 0.1,
       loyaltyRateBonus: 0.5
@@ -44,7 +44,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_ergo_chair',
     name: '人体工学椅',
     description: '舒适的坐姿让学生更专注，提升团队满意度与忠诚度增长',
-    price: 15,
+    price: 12,
     effects: { loyaltyRateBonus: 1 },
     type: 'equipment'
   },
@@ -52,7 +52,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_coffee_machine',
     name: '咖啡机',
     description: '咖啡补给提升氛围，带来稳定的忠诚度增长',
-    price: 18,
+    price: 15,
     effects: { loyaltyRateBonus: 1 },
     type: 'equipment'
   },
@@ -60,7 +60,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_monitor_4k',
     name: '4K显示器',
     description: '更高分辨率提升体验与效率，略微提升忠诚度增长',
-    price: 23,
+    price: 20,
     effects: { studentWorkEfficiency: 0.15, loyaltyRateBonus: 1 },
     type: 'equipment'
   },
@@ -68,7 +68,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_4',
     name: '团队建设活动',
     description: '组织团队建设活动，增强团队凝聚力和学生忠诚度',
-    price: 12,
+    price: 10,
     effects: {
       studentLoyalty: 5
     },
@@ -88,9 +88,9 @@ export const equipment: Equipment[] = [
     id: 'equipment_6',
     name: '研究生奖学金',
     description: '设立研究生奖学金，吸引优秀学生并提高忠诚度',
-    price: 27,
+    price: 24,
     effects: {
-      studentLoyalty: 8
+      studentLoyalty: 12
     },
     type: 'consumable'
   },
@@ -98,7 +98,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_7',
     name: '实验室装修升级',
     description: '改善实验室环境，创造更好的研究条件',
-    price: 24,
+    price: 22,
     effects: {
       studentWorkEfficiency: 0.3,
       loyaltyRateBonus: 1
@@ -109,7 +109,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_7a',
     name: '机器人助理',
     description: '实验室机器人助理，提升流程效率',
-    price: 33,
+    price: 29,
     effects: { studentWorkEfficiency: 0.55 },
     type: 'equipment'
   },
@@ -137,7 +137,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_10',
     name: '专业培训workshop',
     description: '组织专业技能培训workshop，提升学生技能水平',
-    price: 12,
+    price: 10,
     effects: {
       studentLoyalty: 8
     },
@@ -147,7 +147,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_11',
     name: '高性能计算资源',
     description: '购买高性能计算资源，加速科研计算进程',
-    price: 21,
+    price: 18,
     effects: {
       studentWorkEfficiency: 0.36
     },
@@ -157,7 +157,7 @@ export const equipment: Equipment[] = [
     id: 'equipment_11a',
     name: '智能排课系统',
     description: '自动化排课与资源调度，提高效率',
-    price: 27,
+    price: 25,
     effects: { studentWorkEfficiency: 0.55 },
     type: 'equipment'
   },
@@ -175,7 +175,7 @@ export const equipment: Equipment[] = [
     id: 'consumable_academic_fraud',
     name: '学术造假',
     description: '花钱买学术分，风险极高',
-    price: 9,
+    price: 6,
     effects: {
       academicScore: 3
     },

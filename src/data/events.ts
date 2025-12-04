@@ -883,6 +883,81 @@ export const ANNUAL_EVENTS: GameEvent[] = [
     ]
   },
   {
+    id: 'cybernetics_implant',
+    title: '生化义体实验',
+    description: '团队提出在受试者中进行神经接口与义体实验',
+    category: 'special',
+    rarity: 'epic',
+    weight: 1,
+    options: [
+      {
+        id: 'approve_implant',
+        text: '批准并推进试验',
+        results: [
+          { probability: 70, attributeChanges: { reputation: 2, academicScore: 4 }, message: '初步成功，迈向新阶段', nextEvent: 'mind_upload_trial' },
+          { probability: 30, attributeChanges: { reputation: -2 }, message: '伦理争议升温，需谨慎推进' }
+        ]
+      },
+      {
+        id: 'halt_implant',
+        text: '暂缓试验',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '继续论证风险与收益' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'mind_upload_trial',
+    title: '意识上传试验',
+    description: '尝试在受控环境中进行意识上传与回迁',
+    category: 'special',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'conduct_upload',
+        text: '开展上传与验证',
+        results: [
+          { probability: 85, attributeChanges: { academicScore: 6, reputation: 3 }, message: '上传验证成功，技术成熟度提升', nextEvent: 'posthuman_transition' },
+          { probability: 15, attributeChanges: { reputation: -3 }, message: '试验失败引发质疑' }
+        ]
+      },
+      {
+        id: 'cancel_upload',
+        text: '取消试验',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '继续基础研究积累' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'posthuman_transition',
+    title: '后人类跃迁',
+    description: '通过稳定接口与上传技术，实现人机融合的关键跃迁',
+    category: 'special',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'accept_transition',
+        text: '接受跃迁方案',
+        results: [
+          { probability: 85, attributeChanges: { reputation: 4 }, message: '迈入新纪元的门槛' },
+          { probability: 15, attributeChanges: { reputation: -2 }, message: '社会争议导致推进放缓' }
+        ]
+      },
+      {
+        id: 'reject_transition',
+        text: '拒绝跃迁',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '维持传统路线' }
+        ]
+      }
+    ]
+  },
+  {
     id: 'alien_clue',
     title: '外星线索',
     description: '在一次国际会议中你获得了非凡线索',
