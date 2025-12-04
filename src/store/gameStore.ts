@@ -128,6 +128,17 @@ export const useGameStore = create<GameStore>()(
 
       nextYear: () => {
         const state = get();
+        if (state.currentYear >= 40) {
+          const endingObj = checkEnding({
+            attributes: state.character.attributes,
+            eventHistory: get().eventHistory.map(h => ({ eventId: h.eventId, optionId: h.optionId })),
+            purchasedEquipmentIds: get().purchasedEquipment.map(e => e.id),
+            currentYear: 40,
+            maxYears: 40
+          })
+          set({ gameOver: true, gameOverReason: endingObj?.name ?? '任期结束', gameOverTier: endingObj?.tier ?? 'normal' })
+          return
+        }
         const newYearVal = state.currentYear + 1;
 
         // 先应用上一年消耗品的回退效果（只维持一年）
