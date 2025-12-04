@@ -16,13 +16,13 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         results: [
           {
             probability: 70,
-            attributeChanges: { studentLoyalty: 2, reputation: 1 },
+            attributeChanges: { studentLoyalty: 5, reputation: 4 },
             studentEffects: { studentLoyaltyChange: 1 },
             message: '学生非常感激你的指导，你们建立了良好的关系'
           },
           {
             probability: 30,
-            attributeChanges: { studentLoyalty: 1 },
+            attributeChanges: { studentLoyalty: 4 },
             message: '指导过程很顺利，但学生理解能力有限'
           }
         ]
@@ -34,7 +34,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         results: [
           {
             probability: 100,
-            attributeChanges: { studentLoyalty: 1 },
+            attributeChanges: { studentLoyalty: 2 },
             message: '你提供了一些基本建议'
           }
         ]
@@ -50,7 +50,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
           },
           {
             probability: 40,
-            attributeChanges: { studentLoyalty: -1 },
+            attributeChanges: { studentLoyalty: -3 },
             message: '学生有些失望地离开了'
           }
         ]
@@ -69,7 +69,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         id: 'join_volunteer',
         text: '参加志愿服务',
         results: [
-          { probability: 70, attributeChanges: { reputation: 1 }, message: '服务到位，口碑微涨' },
+          { probability: 70, attributeChanges: { reputation: 3 }, message: '服务到位，口碑微涨' },
           { probability: 30, attributeChanges: {}, message: '常规工作，影响有限' }
         ]
       },
@@ -93,9 +93,9 @@ export const ANNUAL_EVENTS: GameEvent[] = [
       {
         id: 'prepare_ppt',
         text: '精心准备PPT',
-        attributeCost: { academicScore: 1 },
+        attributeCost: { academicScore: 2 },
         results: [
-          { probability: 60, attributeChanges: { studentLoyalty: 2, reputation: 1 }, message: '学生好感提升' },
+          { probability: 60, attributeChanges: { studentLoyalty: 5, reputation: 2 }, message: '学生好感提升' },
           { probability: 40, attributeChanges: { studentLoyalty: 1 }, message: '效果尚可' }
         ]
       },
@@ -103,7 +103,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         id: 'free_talk',
         text: '自由交流',
         results: [
-          { probability: 50, attributeChanges: { studentLoyalty: 1 }, message: '气氛轻松' },
+          { probability: 50, attributeChanges: { studentLoyalty: 2 }, message: '气氛轻松' },
           { probability: 50, attributeChanges: { reputation: -2 }, message: '被质疑不够专业' }
         ]
       }
@@ -122,8 +122,8 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         text: '整改隐患',
         attributeCost: { funding: 2 },
         results: [
-          { probability: 70, attributeChanges: { reputation: 2 }, message: '安全达标，评价提升' },
-          { probability: 30, attributeChanges: { reputation: 1 }, message: '基本达标' }
+          { probability: 70, attributeChanges: { reputation: 4 }, message: '安全达标，评价提升' },
+          { probability: 30, attributeChanges: { reputation: 2 }, message: '基本达标' }
         ]
       },
       {
@@ -131,7 +131,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         text: '走流程检查',
         results: [
           { probability: 60, attributeChanges: {}, message: '无异常，但收获有限' },
-          { probability: 40, attributeChanges: { reputation: -2 }, message: '检查不严被点名' }
+          { probability: 40, attributeChanges: { reputation: -5 }, message: '检查不严被点名' }
         ]
       }
     ]
@@ -148,8 +148,8 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         id: 'urge_vendor',
         text: '催促供应商',
         results: [
-          { probability: 60, attributeChanges: { reputation: 1 }, message: '交付加速' },
-          { probability: 40, attributeChanges: { academicScore: -1 }, message: '项目进度受影响' }
+          { probability: 60, attributeChanges: { reputation: 3 }, message: '交付加速' },
+          { probability: 40, attributeChanges: { academicScore: -2 }, message: '项目进度受影响' }
         ]
       },
       {
@@ -201,7 +201,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         id: 'host_event',
         text: '主持活动',
         results: [
-          { probability: 70, attributeChanges: { reputation: 2 }, message: '影响力提升' },
+          { probability: 70, attributeChanges: { reputation: 3 }, message: '影响力提升' },
           { probability: 30, attributeChanges: { reputation: 1 }, message: '活动顺利' }
         ]
       },
@@ -227,7 +227,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         text: '导师支持',
         attributeCost: { funding: 3 },
         results: [
-          { probability: 60, attributeChanges: { reputation: 2 }, message: '项目进展良好' },
+          { probability: 60, attributeChanges: { reputation: 3 }, message: '项目进展良好' },
           { probability: 40, attributeChanges: { reputation: 1 }, message: '项目尚需打磨' }
         ]
       },
@@ -278,7 +278,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         id: 'respond_feedback',
         text: '积极回应',
         results: [
-          { probability: 70, attributeChanges: { reputation: 2, studentLoyalty: 1 }, message: '教学口碑提升' },
+          { probability: 70, attributeChanges: { reputation: 3, studentLoyalty: 2 }, message: '教学口碑提升' },
           { probability: 30, attributeChanges: { reputation: 1 }, message: '改进有限' }
         ]
       },
@@ -304,7 +304,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         id: 'attend_training',
         text: '认真参加',
         results: [
-          { probability: 70, attributeChanges: { reputation: 1 }, message: '规范意识提升' },
+          { probability: 70, attributeChanges: { reputation: 2 }, message: '规范意识提升' },
           { probability: 30, attributeChanges: {}, message: '学习一般' }
         ]
       },
@@ -382,8 +382,8 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         id: 'refuse_drink',
         text: '拒绝劝酒',
         results: [
-          { probability: 60, attributeChanges: { reputation: 1 }, message: '坚持原则获得尊重' },
-          { probability: 40, attributeChanges: { reputation: -1 }, message: '被部分人不满' }
+          { probability: 60, attributeChanges: { reputation: 2 }, message: '坚持原则获得尊重' },
+          { probability: 40, attributeChanges: { reputation: -2 }, message: '被部分人不满' }
         ]
       },
       {
@@ -391,7 +391,7 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         text: '入乡随俗',
         results: [
           { probability: 50, attributeChanges: { reputation: -2 }, message: '形象受损' },
-          { probability: 50, attributeChanges: { reputation: 1 }, message: '圈内关系有所缓和' }
+          { probability: 50, attributeChanges: { reputation: 2 }, message: '圈内关系有所缓和' }
         ]
       }
     ]

@@ -98,7 +98,7 @@ export const projects: Project[] = [
       academicScore: 1,
       funding: 3,
       reputation: 0,
-      studentLoyalty: 10
+      studentLoyalty: 8
     }
   },
   {
@@ -123,7 +123,7 @@ export const projects: Project[] = [
       academicScore: 3,
       funding: 3,
       reputation: 0,
-      studentLoyalty: 16
+      studentLoyalty: 13
     }
   },
   {
@@ -173,7 +173,7 @@ export const projects: Project[] = [
       academicScore: 2,
       funding: 3,
       reputation: 0,
-      studentLoyalty: 13
+      studentLoyalty: 9
     }
   },
   {
@@ -198,7 +198,7 @@ export const projects: Project[] = [
       academicScore: 4,
       funding: 6,
       reputation: 0,
-      studentLoyalty: 30
+      studentLoyalty: 25
     }
   }
 ];

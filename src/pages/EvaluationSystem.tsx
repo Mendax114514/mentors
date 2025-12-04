@@ -125,7 +125,7 @@ function EvaluationSystem() {
         <div className="w-full bg-gray-200 rounded-full h-3 mt-3">
           <div className={`h-3 rounded-full ${canPassEvaluation ? 'bg-green-500' : 'bg-red-500'}`} style={{ width: `${currentThreshold ? Math.min((score / currentThreshold) * 100, 100) : 0}%` }}></div>
         </div>
-        <div className="mt-4 text-sm text-gray-600">公式：学术分×0.5 + 声望×0.3 + 学生爱戴×0.2</div>
+        <div className="mt-4 text-sm text-gray-600">公式：学术分×0.65 + 声望×0.25 + 学生爱戴×0.1</div>
       </div>
 
       {/* 晋升说明 */}
