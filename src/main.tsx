@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import App from './App'
 import MainGame from './pages/MainGame'
 import StudentManagement from './pages/StudentManagement'
@@ -30,6 +30,7 @@ ReactDOM.createRoot(rootEl).render(
             <Route path="game-over" element={<GameOver />} />
           </Route>
           <Route path="/health" element={<div style={{padding:20}}>OK</div>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>
