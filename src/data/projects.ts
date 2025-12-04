@@ -15,9 +15,9 @@ export const projects: Project[] = [
     difficulty: 'hard',
     reward: {
       academicScore: 75,
-      funding: 12,
+      funding: 20,
       reputation: 40,
-      studentLoyalty: 10
+      studentLoyalty: 30
     },
     consumption: {
       academicScore: 2,
@@ -41,7 +41,7 @@ export const projects: Project[] = [
     reward: {
       academicScore: 10,
       funding: 15,
-      reputation: 8,
+      reputation: 20,
       studentLoyalty: 3
     },
     consumption: {
@@ -64,9 +64,9 @@ export const projects: Project[] = [
     duration: 2,
     difficulty: 'easy',
     reward: {
-      academicScore: 3,
+      academicScore: 10,
       funding: 6,
-      reputation: 6,
+      reputation: 10,
       studentLoyalty: 2
     },
     consumption: {
@@ -89,13 +89,13 @@ export const projects: Project[] = [
     duration: 3,
     difficulty: 'medium',
     reward: {
-      academicScore: 5,
+      academicScore: 10,
       funding: 18,
-      reputation: 6,
+      reputation: 8,
       studentLoyalty: 3
     },
     consumption: {
-      academicScore: 1,
+      academicScore: 0,
       funding: 3,
       reputation: 0,
       studentLoyalty: 5
@@ -164,13 +164,13 @@ export const projects: Project[] = [
     duration: 3,
     difficulty: 'medium',
     reward: {
-      academicScore: 18,
+      academicScore: 24,
       funding: 12,
       reputation: 10,
-      studentLoyalty: 4
+      studentLoyalty: 10
     },
     consumption: {
-      academicScore: 2,
+      academicScore: 0,
       funding: 3,
       reputation: 0,
       studentLoyalty: 6
@@ -191,7 +191,7 @@ export const projects: Project[] = [
     reward: {
       academicScore: 90,
       funding: 25,
-      reputation: 15,
+      reputation: 40,
       studentLoyalty: 6
     },
     consumption: {

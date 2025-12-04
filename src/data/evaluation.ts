@@ -65,7 +65,7 @@ export const assessmentWeights = {
 };
 export const assessmentThresholds: Record<number, number> = {
   5: 55,
-  10: 120,
+  10: 100,
   20: 240,
   30: 360,
   40: 480,
