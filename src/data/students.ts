@@ -147,8 +147,8 @@ export function generateRandomStudent(currentYear: number): Student {
 }
 
 export function generateStudentsByLoyalty(loyalty: number, currentYear: number): Student[] {
-  const baseCount = Math.floor(loyalty / 25); // 每25点忠诚度获得1个基础学生
-  const bonusChance = (loyalty % 25) / 25; // 额外学生的概率
+  const baseCount = Math.floor(loyalty / 10); // 每25点忠诚度获得1个基础学生
+  const bonusChance = (loyalty % 10) / 10; // 额外学生的概率
   
   let studentCount = baseCount;
   if (Math.random() < bonusChance) {

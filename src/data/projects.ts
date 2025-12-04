@@ -34,9 +34,9 @@ export const projects: Project[] = [
       academicScore: 80,
       funding: 0,
       reputation: 60,
-      studentLoyalty: 10
+      studentLoyalty: 20
     },
-    duration: 3,
+    duration: 2,
     difficulty: 'medium',
     reward: {
       academicScore: 10,
@@ -48,7 +48,7 @@ export const projects: Project[] = [
       academicScore: 2,
       funding: 1,
       reputation: 0,
-      studentLoyalty: 2
+      studentLoyalty: 1
     }
   },
   {
@@ -73,7 +73,7 @@ export const projects: Project[] = [
       academicScore: 1,
       funding: 2,
       reputation: 0,
-      studentLoyalty: 3
+      studentLoyalty: 2
     }
   },
   {
@@ -98,7 +98,7 @@ export const projects: Project[] = [
       academicScore: 1,
       funding: 3,
       reputation: 0,
-      studentLoyalty: 8
+      studentLoyalty: 5
     }
   },
   {
@@ -106,7 +106,7 @@ export const projects: Project[] = [
     name: '国际合作研究项目',
     description: '申请国际合作研究项目，需要较高的学术声誉和国际影响力',
     requiredAttributes: {
-      academicScore: 300,
+      academicScore: 250,
       funding: 20,
       reputation: 80,
       studentLoyalty: 0
@@ -173,7 +173,7 @@ export const projects: Project[] = [
       academicScore: 2,
       funding: 3,
       reputation: 0,
-      studentLoyalty: 9
+      studentLoyalty: 6
     }
   },
   {
