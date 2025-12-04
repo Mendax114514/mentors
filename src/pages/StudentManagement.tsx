@@ -1,0 +1,252 @@
+import { useGameStore } from '../store/gameStore'
+import { useState } from 'react'
+
+function StudentManagement() {
+  const { students, currentYear, selectEvent, lastYearActions, eventHistory } = useGameStore()
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null)
+
+  const getStudentTypeText = (type: string) => {
+    switch (type) {
+      case 'master': return '硕士生'
+      case 'phd': return '博士生'
+      default: return '学生'
+    }
+  }
+
+  const getStudentProgress = (student: any) => {
+    const yearsInProgram = currentYear - student.joinYear
+    return Math.min((yearsInProgram / student.graduationYear) * 100, 100)
+  }
+
+  const handleEventSelection = (eventId: string) => {
+    if (lastYearActions.eventSelected) {
+      alert('您今年已经选择了事件，不能重复选择')
+      return
+    }
+    setSelectedEvent(eventId)
+  }
+
+  const confirmEventSelection = () => {
+    if (selectedEvent) {
+      selectEvent(selectedEvent)
+      setSelectedEvent(null)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* 页面标题 */}
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">学生管理系统</h1>
+        <p className="text-lg text-gray-600">管理您的学生团队，选择年度学术事件</p>
+      </div>
+
+      {/* 学生统计 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="game-card p-6 text-center">
+          <div className="text-3xl font-bold text-blue-600">{students.length}</div>
+          <div className="text-sm text-gray-600">总学生数</div>
+        </div>
+        <div className="game-card p-6 text-center">
+          <div className="text-3xl font-bold text-green-600">
+            {students.filter(s => s.type === 'master').length}
+          </div>
+          <div className="text-sm text-gray-600">硕士生</div>
+        </div>
+        <div className="game-card p-6 text-center">
+          <div className="text-3xl font-bold text-purple-600">
+            {students.filter(s => s.type === 'phd').length}
+          </div>
+          <div className="text-sm text-gray-600">博士生</div>
+        </div>
+        <div className="game-card p-6 text-center">
+          <div className="text-3xl font-bold text-orange-600">
+            {students.filter(s => currentYear - s.joinYear >= s.graduationYear).length}
+          </div>
+          <div className="text-sm text-gray-600">毕业班学生</div>
+        </div>
+      </div>
+
+      {/* 学生列表 */}
+      <div className="game-card p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">学生详情</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {students.map(student => (
+            <div key={student.id} className="student-card">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h3 className="font-semibold text-lg">{student.name}</h3>
+                  <p className="text-sm text-gray-600">{getStudentTypeText(student.type)}</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-gray-500">第{currentYear - student.joinYear + 1}年</div>
+                  <div className="text-xs text-gray-400">共{student.graduationYear}年</div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">忠诚度</span>
+                  <span className="font-medium">{student.loyalty.toFixed(0)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full" 
+                    style={{ width: `${student.loyalty}%` }}
+                  ></div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">工作效率</span>
+                  <span className="font-medium">{(student.workEfficiency * 100).toFixed(0)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full" 
+                    style={{ width: `${student.workEfficiency * 100}%` }}
+                  ></div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">潜力值</span>
+                  <span className="font-medium">{student.potential}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-purple-500 h-2 rounded-full" 
+                    style={{ width: `${student.potential}%` }}
+                  ></div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">学业进度</span>
+                  <span className="font-medium">{getStudentProgress(student).toFixed(0)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-orange-500 h-2 rounded-full" 
+                    style={{ width: `${getStudentProgress(student)}%` }}
+                  ></div>
+                </div>
+              </div>
+              
+              {currentYear - student.joinYear >= student.graduationYear && (
+                <div className="mt-3 p-2 bg-yellow-100 text-yellow-800 rounded text-sm text-center">
+                  🎓 即将毕业
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 事件选择（备用入口） */}
+      <div className="game-card p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">事件</h2>
+        
+        {lastYearActions.eventSelected ? (
+          <div className="text-center py-8">
+            <div className="text-6xl mb-4">✅</div>
+            <h3 className="text-xl font-semibold text-green-800 mb-2">您已完成今年的学术事件选择</h3>
+            <p className="text-gray-600">请前往其他页面完成剩余任务</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-gray-600 mb-4">事件通过主界面自动弹出，此处为备用入口：</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                {
+                  id: 'event_1',
+                  title: '指导学生研究',
+                  description: '花更多时间指导学生的研究工作，提升学生忠诚度和学术分数',
+                  icon: '🎓'
+                },
+                {
+                  id: 'event_2', 
+                  title: '发表学术论文',
+                  description: '专注于撰写和发表高质量的学术论文，提升学术声誉',
+                  icon: '📄'
+                },
+                {
+                  id: 'event_3',
+                  title: '参加学术会议',
+                  description: '参加重要的学术会议，扩大学术影响力，获得声誉',
+                  icon: '🏛️'
+                },
+                {
+                  id: 'event_4',
+                  title: '申请研究经费',
+                  description: '积极申请各类研究经费，为实验室争取更多资金支持',
+                  icon: '💰'
+                }
+              ].map(event => (
+                <div 
+                  key={event.id}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-300 ${
+                    selectedEvent === event.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => handleEventSelection(event.id)}
+                >
+                  <div className="flex items-center mb-2">
+                    <span className="text-2xl mr-3">{event.icon}</span>
+                    <h3 className="font-semibold text-lg">{event.title}</h3>
+                  </div>
+                  <p className="text-sm text-gray-600">{event.description}</p>
+                </div>
+              ))}
+            </div>
+            
+            {selectedEvent && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={confirmEventSelection}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                >
+                  确认选择此事件
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 事件回溯 */}
+      <div className="game-card p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">事件回溯</h2>
+        {eventHistory.length === 0 ? (
+          <div className="text-sm text-gray-600">暂无历史事件</div>
+        ) : (
+          <div className="space-y-3">
+            {eventHistory.map((h, idx) => (
+              <div key={idx} className="p-3 border rounded">
+                <div className="text-sm text-gray-600">第{h.year}年</div>
+                <div className="font-medium">结果：{h.message || '（无说明）'}</div>
+                <div className="text-xs text-gray-600 mt-1">变化：
+                  {Object.entries(h.changes).map(([k,v]) => (
+                    <span key={k} className="mr-2">{k === 'academicScore' ? '学术分' : k === 'funding' ? '经费' : k === 'reputation' ? '声望' : '学生爱戴'}{v! >= 0 ? '+' : ''}{v}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 操作提示 */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="font-semibold text-blue-800 mb-2">💡 操作提示</h3>
+        <ul className="text-sm text-blue-700 space-y-1">
+          <li>• 学生的忠诚度会影响他们的工作效率和毕业时的贡献</li>
+          <li>• 每年只能选择一个学术事件，请谨慎选择</li>
+          <li>• 即将毕业的学生会为您提供额外的学术分数和声誉奖励</li>
+          <li>• 定期关注学生的进度，适时调整指导策略</li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+export default StudentManagement
