@@ -8,6 +8,7 @@ function App() {
   const location = useLocation()
   const [msgQueue, setMsgQueue] = useState<string[]>([])
   const [milestoneToast, setMilestoneToast] = useState<{ year: number; next?: number } | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     if (gameOver && location.pathname !== '/game-over' && location.pathname !== '/assessment') {
@@ -44,59 +45,51 @@ function App() {
       <nav className="bg-white shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
           <div className="flex justify-between items-center h-14">
-            <div className="flex items-center gap-4 overflow-x-auto whitespace-nowrap">
-              <h1 className="text-2xl font-bold text-gray-900">校园导师模拟器</h1>
-              <div className="flex gap-3 flex-nowrap">
-                <Link 
-                  to="/" 
-                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  主界面
-                </Link>
-                <Link 
-                  to="/students" 
-                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  学生管理
-                </Link>
-                <Link 
-                  to="/projects" 
-                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  项目申请
-                </Link>
-                <Link 
-                  to="/equipment" 
-                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  购买装备
-                </Link>
-                <Link 
-                  to="/assessment" 
-                  className="text-gray-600 hover:text-gray-900 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  晋升考核
-                </Link>
-              </div>
+            <div className="flex items-center gap-3">
+              <button
+                aria-label="菜单"
+                className="flex md:hidden items-center justify-center w-10 h-10 rounded-md border border-gray-200 text-gray-700"
+                onClick={() => setMenuOpen(o => !o)}
+              >
+                ☰
+              </button>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">校园导师模拟器</h1>
             </div>
-            
-            {/* 状态显示 */}
-            <div className="flex items-center space-x-6">
-              <div className="text-sm text-gray-600">
-                <span className="font-medium">第{currentYear}年</span>
+            <div className="hidden md:flex items-center gap-4">
+              <div className="flex gap-3">
+                <Link to="/" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">主界面</Link>
+                <Link to="/students" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">学生管理</Link>
+                <Link to="/projects" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">项目申请</Link>
+                <Link to="/equipment" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">购买装备</Link>
+                <Link to="/assessment" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">晋升考核</Link>
               </div>
-              <div className="text-sm text-gray-600">
-                <span className="font-medium">{character.title}</span>
-              </div>
-              <div className="text-sm">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  canProceedToNextYear() ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {canProceedToNextYear() ? '可进入下一年' : '待完成本年度任务'}
-                </span>
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-gray-600"><span className="font-medium">第{currentYear}年</span></div>
+                <div className="text-sm text-gray-600"><span className="font-medium">{character.title}</span></div>
+                <div className="text-sm">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${canProceedToNextYear() ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{canProceedToNextYear() ? '可进入下一年' : '待完成本年度任务'}</span>
+                </div>
               </div>
             </div>
           </div>
+          {menuOpen && (
+            <div className="md:hidden border-t border-gray-200 py-2">
+              <div className="flex flex-col gap-2">
+                <Link to="/" className="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded">主界面</Link>
+                <Link to="/students" className="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded">学生管理</Link>
+                <Link to="/projects" className="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded">项目申请</Link>
+                <Link to="/equipment" className="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded">购买装备</Link>
+                <Link to="/assessment" className="px-3 py-2 text-gray-700 hover:bg-gray-50 rounded">晋升考核</Link>
+                <div className="flex items-center gap-3 px-3 py-2">
+                  <div className="text-sm text-gray-600"><span className="font-medium">第{currentYear}年</span></div>
+                  <div className="text-sm text-gray-600"><span className="font-medium">{character.title}</span></div>
+                  <div className="text-sm">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${canProceedToNextYear() ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{canProceedToNextYear() ? '可进入下一年' : '待完成本年度任务'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
