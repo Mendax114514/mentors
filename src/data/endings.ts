@@ -19,7 +19,6 @@ export const endings: EndingRule[] = [
     sequence: ['alumni_donation', 'enterprise_collab_deepening', 'market_launch', 'board_invite', 'ipo_preparation'],
     sequenceOptions: { enterprise_collab_deepening: 'sign_pilot', market_launch: 'launch', board_invite: 'accept_seat', ipo_preparation: 'file_prospectus' },
     minAttrs: { reputation: 60, funding: 50 },
-    minYear: 20,
   },
   {
     id: 'imprisoned',
@@ -28,7 +27,6 @@ export const endings: EndingRule[] = [
     sequence: ['report_scandal', 'disciplinary_hearing', 'evidence_escalation', 'court_trial'],
     sequenceOptions: { report_scandal: 'pressure_students', disciplinary_hearing: 'refuse_cooperation', evidence_escalation: 'deny_allegations', court_trial: 'accept_verdict' },
     maxAttrs: { studentLoyalty: 10, reputation: 20 },
-    minYear: 10,
   },
   {
     id: 'mechanical_ascension',
@@ -65,7 +63,6 @@ export const endings: EndingRule[] = [
     tier: 'legendary',
     sequence: ['paper_publication', 'conference_invitation', 'ai_breakthrough', 'grant_breakthrough', 'global_keynote'],
     minAttrs: { academicScore: 95, reputation: 90 },
-    minYear: 25,
   },
   {
     id: 'academy_member',
@@ -73,15 +70,20 @@ export const endings: EndingRule[] = [
     tier: 'legendary',
     sequence: ['paper_publication', 'department_meeting', 'media_feature', 'regional_forum'],
     minAttrs: { reputation: 95 },
-    minYear: 25,
   },
   {
     id: 'teacher_of_centuries',
     name: '传奇结局：万世师表',
     tier: 'legendary',
-    sequence: ['excellent_teaching_award'],
+    sequence: ['excellent_teaching_award', 'pedagogy_reform', 'mentorship_program', 'community_outreach', 'teaching_mastery'],
+    sequenceOptions: {
+      excellent_teaching_award: 'actively_campaign',
+      pedagogy_reform: 'curriculum_update',
+      mentorship_program: 'launch_program',
+      community_outreach: 'run_outreach',
+      teaching_mastery: 'accept_mastery'
+    },
     minAttrs: { studentLoyalty: 90, reputation: 85 },
-    minYear: 20,
   },
 ]
 

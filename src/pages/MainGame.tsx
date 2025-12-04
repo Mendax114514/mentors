@@ -143,7 +143,7 @@ function MainGame() {
         </div>
 
         {/* 属性显示 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
             <div className={`text-2xl font-bold ${getAttributeColor(character.attributes.academicScore)}`}>
               {character.attributes.academicScore}
@@ -352,8 +352,8 @@ function MainGame() {
     </div>
     {/* 事件弹窗 */}
     {modalEvent && !lastYearActions.eventSelected && (
-      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-        <div className="bg-white rounded-lg p-6 max-w-xl w-full">
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center px-4">
+        <div className="bg-white rounded-lg p-4 sm:p-6 max-w-xl w-full max-h-[80vh] overflow-y-auto">
           <h3 className="text-xl font-semibold mb-2">{modalEvent.title}</h3>
           <p className="text-sm text-gray-600 mb-4">{modalEvent.description}</p>
           <div className="space-y-3">

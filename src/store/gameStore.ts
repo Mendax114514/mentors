@@ -2,7 +2,7 @@ import { create } from 'zustand';
  
 import { GameState, CharacterAttributes, Student, ActiveProject } from '../types/game';
 import { events } from '../data/events';
-import { checkEnding, chainStartEvents, hiddenChainStartEvents } from '../data/endings';
+import { checkEnding, chainStartEvents, hiddenChainStartEvents, endings } from '../data/endings';
 import { assessmentMilestones, assessmentThresholds, assessmentWeights } from '../data/evaluation';
 import { projects } from '../data/projects';
 import { equipment } from '../data/equipment';
@@ -98,8 +98,19 @@ export const useGameStore = create<GameStore>()(
           gameOverReason: '',
           eventHistory: [],
           pendingEvents: [],
-          scheduledEvents: [],
-          assessmentPlan: [...assessmentMilestones],
+          scheduledEvents: (() => {
+            let pool = [...chainStartEvents]
+            let startId = pool[Math.floor(Math.random() * pool.length)]
+            if (hiddenChainStartEvents.includes(startId)) {
+              const ok = Math.random() < 0.5
+              if (!ok) {
+                pool = pool.filter(id => !hiddenChainStartEvents.includes(id))
+                startId = pool[Math.floor(Math.random() * pool.length)]
+              }
+            }
+            const dueYear = 10 + Math.floor(Math.random() * 6)
+            return [{ id: startId, dueYear }]
+          })(),
           chainState: { active: false },
           hiddenChainAttempted: false,
           yearReverts: [],
@@ -387,36 +398,46 @@ export const useGameStore = create<GameStore>()(
         const msgText = `${selected.message ?? '事件已处理'}${deltaText ? '\n变化：' + deltaText : ''}`
         // 记录事件历史
         set({ eventHistory: [...get().eventHistory, { year: state.currentYear, eventId, optionId, message: msgText, changes: selected.attributeChanges }] });
-        // 链式任务：若结果包含下一事件，则加入队列
         const nextId = (selected as any).nextEvent as string | undefined
-        if (nextId) {
-          const offset = 3 + Math.floor(Math.random() * 3)
-          const dueYear = Math.max(state.currentYear + offset, 5)
-          set({ scheduledEvents: [...get().scheduledEvents, { id: nextId, dueYear }], chainState: { active: true } })
-        } else {
-          if (get().chainState.active) {
-            set({ chainState: { active: false } })
-          }
-          const scheduled = get().scheduledEvents
-          if (!get().chainState.active && scheduled.length === 0) {
+        let handledChain = false
+        const relRules = endings.filter(r => (r.sequence || []).includes(eventId))
+        for (const rule of relRules) {
+          const req = rule.sequenceOptions?.[eventId]
+          if (req && req !== optionId) {
             const offset = 3 + Math.floor(Math.random() * 3)
-            let pool = [...chainStartEvents]
-            const dueYear = Math.max(state.currentYear + offset, 5)
-            let startId = pool[Math.floor(Math.random() * pool.length)]
-            if (hiddenChainStartEvents.includes(startId)) {
-              if (!get().hiddenChainAttempted) {
-                const ok = Math.random() < 0.5
-                set({ hiddenChainAttempted: true })
-                if (!ok) {
+            const dueYear = state.currentYear + offset
+            set({ scheduledEvents: [...get().scheduledEvents, { id: eventId, dueYear }] })
+            handledChain = true
+            break
+          }
+        }
+        if (!handledChain) {
+          if (nextId) {
+            const offset = 3 + Math.floor(Math.random() * 3)
+            const dueYear = state.currentYear + offset
+            set({ scheduledEvents: [...get().scheduledEvents, { id: nextId, dueYear }] })
+          } else {
+            const scheduled = get().scheduledEvents
+            if (scheduled.length < 3) {
+              const offset = 3 + Math.floor(Math.random() * 3)
+              let pool = [...chainStartEvents]
+              const dueYear = state.currentYear + offset
+              let startId = pool[Math.floor(Math.random() * pool.length)]
+              if (hiddenChainStartEvents.includes(startId)) {
+                if (!get().hiddenChainAttempted) {
+                  const ok = Math.random() < 0.5
+                  set({ hiddenChainAttempted: true })
+                  if (!ok) {
+                    pool = pool.filter(id => !hiddenChainStartEvents.includes(id))
+                    startId = pool[Math.floor(Math.random() * pool.length)]
+                  }
+                } else {
                   pool = pool.filter(id => !hiddenChainStartEvents.includes(id))
                   startId = pool[Math.floor(Math.random() * pool.length)]
                 }
-              } else {
-                pool = pool.filter(id => !hiddenChainStartEvents.includes(id))
-                startId = pool[Math.floor(Math.random() * pool.length)]
               }
+              set({ scheduledEvents: [...scheduled, { id: startId, dueYear }] })
             }
-            set({ scheduledEvents: [...scheduled, { id: startId, dueYear }] })
           }
         }
         // 若本次事件来自队列首，则消费队列

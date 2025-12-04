@@ -780,6 +780,106 @@ export const ANNUAL_EVENTS: GameEvent[] = [
     ]
   },
   {
+    id: 'pedagogy_reform',
+    title: '教学改革试点',
+    description: '发起课程改革试点并优化教学方案',
+    category: 'teaching',
+    rarity: 'epic',
+    weight: 2,
+    options: [
+      {
+        id: 'curriculum_update',
+        text: '推进课程更新',
+        results: [
+          { probability: 85, attributeChanges: { reputation: 3, studentLoyalty: 2 }, message: '改革反响良好', nextEvent: 'mentorship_program' },
+          { probability: 15, attributeChanges: { reputation: -2 }, message: '改革争议较大' }
+        ]
+      },
+      {
+        id: 'keep_curriculum',
+        text: '维持现行方案',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '继续观察效果' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'mentorship_program',
+    title: '导师制深化项目',
+    description: '建立导师制深化项目，提升学生培养质量',
+    category: 'teaching',
+    rarity: 'epic',
+    weight: 2,
+    options: [
+      {
+        id: 'launch_program',
+        text: '启动深化项目',
+        results: [
+          { probability: 85, attributeChanges: { academicScore: 2, studentLoyalty: 3 }, message: '项目成效显著', nextEvent: 'community_outreach' },
+          { probability: 15, attributeChanges: { reputation: -1 }, message: '推进受阻' }
+        ]
+      },
+      {
+        id: 'delay_program',
+        text: '延后启动',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '继续筹备资源' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'community_outreach',
+    title: '教学社区服务',
+    description: '组织社区教学服务，扩大社会影响力',
+    category: 'teaching',
+    rarity: 'rare',
+    weight: 3,
+    options: [
+      {
+        id: 'run_outreach',
+        text: '开展服务活动',
+        results: [
+          { probability: 85, attributeChanges: { reputation: 3, studentLoyalty: 2 }, message: '好评如潮', nextEvent: 'teaching_mastery' },
+          { probability: 15, attributeChanges: { reputation: -1 }, message: '反馈一般' }
+        ]
+      },
+      {
+        id: 'skip_outreach',
+        text: '暂不开展',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '保持既有教学安排' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'teaching_mastery',
+    title: '教学造诣认证',
+    description: '申请教学造诣认证以巩固教学成果',
+    category: 'teaching',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'accept_mastery',
+        text: '申请认证',
+        results: [
+          { probability: 85, attributeChanges: { reputation: 4 }, message: '认证通过，影响力提升' },
+          { probability: 15, attributeChanges: { reputation: -2 }, message: '认证未通过，引发争议' }
+        ]
+      },
+      {
+        id: 'skip_mastery',
+        text: '暂不申请',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '继续积累教学成果' }
+        ]
+      }
+    ]
+  },
+  {
     id: 'alumni_donation',
     title: '校友捐赠线索',
     description: '一位成功校友有意向资助你的课题组',
