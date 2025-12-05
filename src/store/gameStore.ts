@@ -7,6 +7,9 @@ import { assessmentMilestones, assessmentThresholds, assessmentWeights } from '.
 import { projects } from '../data/projects';
 import { equipment } from '../data/equipment';
 import { generateStudentsByLoyalty, generateRandomStudent } from '../data/students';
+import { studentStatuses, randomStatus } from '../data/studentStatus';
+import { graduationFeedback } from '../data/graduationFeedback';
+import { guidanceByState } from '../data/studentGuidance';
 import { evaluationCriteria, initialTitles, titleHierarchy, assessmentMilestones, assessmentThresholds, assessmentWeights } from '../data/evaluation';
 
 interface GameStore extends GameState {
@@ -15,7 +18,11 @@ interface GameStore extends GameState {
     exploitEfficiency: number;
     studentSatisfaction: number;
     networkingPower: number;
+    loyaltyRateBonus?: number;
+    sinValue?: number;
+    studentCapBonus?: number;
   };
+  attackSkills: string[];
   // 游戏控制方法
   nextYear: () => void;
   selectEvent: (eventId: string) => void;
@@ -29,6 +36,9 @@ interface GameStore extends GameState {
   // 学生管理
   recruitStudents: () => void;
   graduateStudents: () => void;
+  guideStudent: (studentId: string, taskId: string, optionId: string) => void;
+  attackStudent: (studentId: string, kind: 'verbal'|'physical'|'special', skillId?: string) => void;
+  grantFundingToStudent: (studentId: string) => void;
   
   // 项目相关
   updateActiveProjects: () => void;
@@ -76,7 +86,14 @@ export const useGameStore = create<GameStore>()(
         studentSatisfaction: 1.0,
         networkingPower: 1.0,
         loyaltyRateBonus: 0,
+        sinValue: 0,
+        studentCapBonus: 0,
       },
+      attackSkills: [],
+      beatCount: 0,
+      assassinationEligibleFromYear: undefined as number | undefined,
+      hospital: false,
+      smileThreatYear: undefined as number | undefined,
       assessmentPlan: [...assessmentMilestones],
       yearReverts: [] as Array<{ dueYear: number; attr: Partial<CharacterAttributes>; loyaltyRateBonus?: number }>,
       pendingEvents: [] as string[],
@@ -84,6 +101,7 @@ export const useGameStore = create<GameStore>()(
       scheduledEvents: [] as Array<{ id: string; dueYear: number }>,
       chainState: { active: false } as { active: boolean },
       hiddenChainAttempted: false,
+      incidentQueue: [] as Array<{ id: string; dueYear: number; payload?: any }>,
       gameOverTier: undefined as undefined | 'hidden' | 'legendary' | 'normal',
 
       startNewGame: () => {
@@ -113,6 +131,11 @@ export const useGameStore = create<GameStore>()(
           })(),
           chainState: { active: false },
           hiddenChainAttempted: false,
+          attackSkills: [],
+          beatCount: 0,
+          assassinationEligibleFromYear: undefined,
+          hospital: false,
+          smileThreatYear: undefined,
           yearReverts: [],
           lastYearActions: { eventSelected: false, purchaseMade: false, projectApplied: false }
         });
@@ -141,6 +164,71 @@ export const useGameStore = create<GameStore>()(
         }
         const newYearVal = state.currentYear + 1;
 
+        // 隐藏结局：被学生刺杀（每年开始判定）
+        const condLoyaltyNeg = get().character.attributes.studentLoyalty < 0
+        const condBeatEnough = (get() as any).beatCount >= 6
+        if (!get().assassinationEligibleFromYear && condLoyaltyNeg && condBeatEnough) {
+          set({ assassinationEligibleFromYear: state.currentYear + 1 })
+        }
+        if (get().assassinationEligibleFromYear && newYearVal >= (get().assassinationEligibleFromYear as number) && condLoyaltyNeg && condBeatEnough) {
+          if (Math.random() < 0.3) {
+            set({ gameOver: true, gameOverReason: '隐藏结局：被学生刺杀', gameOverTier: 'hidden' })
+            return
+          }
+        }
+        // 奇怪表情威胁：次年 50% 直接触发刺杀
+        if (get().smileThreatYear && newYearVal >= (get().smileThreatYear as number)) {
+          if (Math.random() < 0.5) {
+            set({ gameOver: true, gameOverReason: '隐藏结局：被学生刺杀', gameOverTier: 'hidden', smileThreatYear: undefined })
+            return
+          } else {
+            set({ smileThreatYear: undefined })
+          }
+        }
+
+        // 特殊事件在年初优先触发
+        const idx = get().incidentQueue.findIndex(i => i.dueYear === newYearVal)
+        if (idx >= 0) {
+          const inc = get().incidentQueue[idx]
+          const def = (require('../data/incidents') as any).incidents[inc.id]
+          if (def) {
+            const cur = { ...get().character.attributes }
+            Object.entries(def.effects).forEach(([k,v]) => { (cur as any)[k] = Math.max(0, ((cur as any)[k] || 0) + (v as number)) })
+            const ha = { ...get().hiddenAttributes } as any
+            if (def.sinDelta) ha.sinValue = Math.min(100, (ha.sinValue || 0) + def.sinDelta)
+            set({ character: { ...get().character, attributes: cur }, hiddenAttributes: ha, incidentQueue: get().incidentQueue.filter((_,i) => i !== idx) })
+            window.dispatchEvent(new CustomEvent('special-incident', { detail: { title: def.title, message: def.message } }))
+          }
+        }
+
+        // 学生年度状态分配与被动影响
+        const statusById: Record<string, any> = {}
+        studentStatuses.forEach(s => statusById[s.id] = s)
+        const updatedStudents = get().students.map(stu => {
+          const s = { ...stu } as any
+          // 每年重置指导标记
+          s.guidedThisYear = false
+          const tag = s.stateTag
+          if (tag && statusById[tag]) {
+            const eff = statusById[tag].effects
+            if (eff?.passiveDrift?.loyalty) s.loyalty = Math.max(0, Math.min(100, s.loyalty + eff.passiveDrift.loyalty))
+          }
+          if (!s.stateTag) {
+            const maybe = randomStatus()
+            s.stateTag = maybe
+          }
+          s.loyalty = Math.min(100, s.loyalty + 10)
+          return s
+        })
+        set({ students: updatedStudents })
+
+        // 年初立即退学：任何忠诚度<=0的学生直接退学并提示
+        if (get().students.some(s => (s as any).loyalty <= 0)) {
+          const survivors = get().students.filter(s => (s as any).loyalty > 0)
+          set({ students: survivors })
+          window.dispatchEvent(new CustomEvent('special-incident', { detail: { title: '学生退学', message: '有学生因忠诚度过低选择退学，团队士气受挫' } }))
+        }
+
         // 先应用上一年消耗品的回退效果（只维持一年）
         const reverts = get().yearReverts.filter(r => r.dueYear === newYearVal)
         if (reverts.length) {
@@ -156,11 +244,12 @@ export const useGameStore = create<GameStore>()(
           set({ yearReverts: get().yearReverts.filter(r => r.dueYear !== newYearVal) })
         }
         
-        // 年度推进需要完成“事件”，采购与项目为可选
-        if (!state.lastYearActions.eventSelected) {
+        // 年度推进需要完成“事件”，采购与项目为可选（医院养病状态跳过）
+        if (!state.lastYearActions.eventSelected && !get().hospital) {
           window.dispatchEvent(new CustomEvent('game-message', { detail: '请先完成本年度的事件' }));
           return;
         }
+        if (get().hospital) set({ hospital: false })
 
         // 自然增长
         const studentsCount = state.students.length;
@@ -173,6 +262,8 @@ export const useGameStore = create<GameStore>()(
         let perStudentAcademic = 0
         let perStudentFunding = 0
         let perStudentReputation = 0
+        const statusMap2: Record<string, any> = {}
+        studentStatuses.forEach(ss => statusMap2[ss.id] = ss)
         for (const stu of state.students) {
           let we = (stu as any).workEfficiency ?? 0.8
           let pot = ((stu as any).potential ?? 70) / 100
@@ -183,9 +274,19 @@ export const useGameStore = create<GameStore>()(
           else we -= 0.1
           we = Math.max(0.3, Math.min(1.2, we))
           pot = Math.max(0.3, Math.min(1.2, pot))
-          perStudentAcademic += Math.round(we * pot * loy * 1)
-          perStudentFunding += Math.round(we * loy * 0.5)
-          perStudentReputation += Math.round(pot * 0.3)
+          let a = Math.round(we * pot * loy * 1)
+          let f = Math.round(we * loy * 0.5)
+          let r = Math.round(pot * 0.3)
+          const st = (stu as any).stateTag
+          const mul = st ? statusMap2[st]?.effects?.outputMultiplier : undefined
+          if (mul) {
+            a = Math.max(0, Math.round(a * (mul.academic ?? 1)))
+            f = Math.max(0, Math.round(f * (mul.funding ?? 1)))
+            r = Math.max(0, Math.round(r * (mul.reputation ?? 1)))
+          }
+          perStudentAcademic += a
+          perStudentFunding += f
+          perStudentReputation += r
         }
 
         const academicGrowth = Math.round((1 + studentsCount * 0.05) * eff * exploit) + perStudentAcademic;
@@ -253,6 +354,27 @@ export const useGameStore = create<GameStore>()(
           const yearsInProgram = currentYearVal - (student as any).joinYear
           return yearsInProgram < (student as any).graduationYear
         })
+        // 毕业反馈：根据隐藏好感度给予夸奖或辱骂并调整声望
+        const grads = state.students.filter(student => {
+          const yearsInProgram = currentYearVal - (student as any).joinYear
+          return yearsInProgram >= (student as any).graduationYear
+        }) as any[]
+        let repDelta = 0
+        grads.forEach(g => {
+          const f = (g.favor ?? 0) as number
+          if (f >= 60) {
+            repDelta += 2
+            const msg = graduationFeedback.positive[Math.floor(Math.random() * graduationFeedback.positive.length)].replace('{name}', g.name)
+            window.dispatchEvent(new CustomEvent('game-message', { detail: msg }))
+          } else if (f <= -60) {
+            repDelta -= 2
+            const msg = graduationFeedback.negative[Math.floor(Math.random() * graduationFeedback.negative.length)].replace('{name}', g.name)
+            window.dispatchEvent(new CustomEvent('game-message', { detail: msg }))
+          }
+        })
+        if (repDelta !== 0) {
+          set({ character: { ...get().character, attributes: { ...get().character.attributes, reputation: Math.max(0, get().character.attributes.reputation + repDelta) } } })
+        }
         set({ students: remainingStudents })
 
         // 招募新学生（基于当前学生忠诚度）
@@ -261,7 +383,8 @@ export const useGameStore = create<GameStore>()(
         // 学生数量上限：按职称限制并允许设备提升上限
         const rankCapMap: Record<string, number> = { '助教': 3, '讲师': 5, '副教授': 8, '教授': 12 }
         const baseCap = rankCapMap[state.character.title] ?? 3
-        const capBonus = state.purchasedEquipment.reduce((acc, it) => acc + (((it as any).effects?.studentCapBonus) || 0), 0)
+        const capBonusEquip = state.purchasedEquipment.reduce((acc, it) => acc + (((it as any).effects?.studentCapBonus) || 0), 0)
+        const capBonus = capBonusEquip + ((get().hiddenAttributes as any).studentCapBonus || 0)
         const maxCap = baseCap + capBonus
         if (get().students.length > maxCap) {
           set({ students: get().students.slice(0, maxCap) })
@@ -375,19 +498,50 @@ export const useGameStore = create<GameStore>()(
           });
         }
 
-        // 按概率选择结果
-        const r = Math.random() * 100;
+        // 按概率选择结果（受隐藏属性与角色属性影响）
+        const bias = Math.max(-10, Math.min(10, ((get().hiddenAttributes as any).sinValue || 0) - (state.character.attributes.reputation * 0.05)))
+        let r = Math.max(0, Math.min(100, (Math.random() * 100) + bias));
         let acc = 0;
         let selected = option.results[0];
         for (const res of option.results) {
           acc += res.probability;
           if (r <= acc) { selected = res; break; }
         }
+        // 阶下囚强行推进：罪恶值过高时强制选择推进结果
+        const imprisonedSeq = ['report_scandal','disciplinary_hearing','evidence_escalation','court_trial']
+        if ((get().hiddenAttributes as any).sinValue >= 80 && imprisonedSeq.includes(eventId)) {
+          const forward = option.results.find(r => (r as any).nextEvent) || option.results.find(r => (r as any).id === 'accept_verdict') || selected
+          selected = forward
+        }
 
-        // 应用结果属性变化
+        // 应用结果属性变化（含百分比）并积累罪恶值
+        let sinDelta = 0
         Object.entries(selected.attributeChanges).forEach(([key, value]) => {
-          (newAttributes as any)[key] = ((newAttributes as any)[key] || 0) + (value as number);
+          const v = value as number
+          (newAttributes as any)[key] = ((newAttributes as any)[key] || 0) + v
+          if (key === 'reputation' && typeof v === 'number' && v < 0) sinDelta += Math.abs(v)
+          if (key === 'studentLoyalty' && typeof v === 'number' && v < 0) sinDelta += Math.abs(v) * 0.5
         });
+        const pct = (selected as any).percentChanges as Record<string, number> | undefined
+        if (pct) {
+          Object.entries(pct).forEach(([k, p]) => {
+            const base = (newAttributes as any)[k] || 0
+            const delta = Math.round(base * p)
+            (newAttributes as any)[k] = base + delta
+          })
+        }
+        const giveSkillVal = (selected as any).giveSkill as string | undefined
+        if (giveSkillVal) {
+          const skillId = giveSkillVal === '随机' ? ['dragon_palm','shadow_kick','sword_form'][Math.floor(Math.random()*3)] : giveSkillVal
+          const setSkills = new Set(get().attackSkills)
+          setSkills.add(skillId)
+          set({ attackSkills: Array.from(setSkills) })
+        }
+        if (sinDelta) {
+          const ha = { ...get().hiddenAttributes } as any
+          ha.sinValue = Math.min(100, (ha.sinValue || 0) + sinDelta)
+          set({ hiddenAttributes: ha })
+        }
 
         set({
           character: {
@@ -409,6 +563,13 @@ export const useGameStore = create<GameStore>()(
         const msgText = `${selected.message ?? '事件已处理'}${deltaText ? '\n变化：' + deltaText : ''}`
         // 记录事件历史
         set({ eventHistory: [...get().eventHistory, { year: state.currentYear, eventId, optionId, message: msgText, changes: selected.attributeChanges }] });
+        const giveSkill = (selected as any).giveSkill as string | undefined
+        if (giveSkill) {
+          const skills = new Set(get().attackSkills)
+          skills.add(giveSkill)
+          set({ attackSkills: Array.from(skills) })
+          window.dispatchEvent(new CustomEvent('game-message', { detail: `获得武学：${giveSkill}` }))
+        }
         const nextId = (selected as any).nextEvent as string | undefined
         let handledChain = false
         const relRules = endings.filter(r => (r.sequence || []).includes(eventId))
@@ -724,6 +885,89 @@ export const useGameStore = create<GameStore>()(
           passed,
           message: passed ? '恭喜！您通过了评估，可以继续晋升。' : '很遗憾，您未达到评估阈值。'
         };
+      },
+
+      guideStudent: (studentId: string, taskId: string, optionId: string) => {
+        const store = get()
+        const stu = store.students.find(s => s.id === studentId) as any
+        if (!stu || (stu as any).guidedThisYear) return
+        const tasks = guidanceByState[stu.stateTag || 'motivated'] || []
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) return
+        const opt = task.options.find(o => o.id === optionId)
+        if (!opt) return
+        let roll = Math.random() * 100
+        let acc = 0
+        let picked = opt.results[0]
+        for (const r of opt.results) { acc += r.probability; if (roll <= acc) { picked = r; break } }
+        const updated = store.students.map(s => {
+          if (s.id !== studentId) return s
+          const n: any = { ...s }
+          if (typeof picked.loyalty === 'number') n.loyalty = Math.max(0, Math.min(100, n.loyalty + picked.loyalty))
+          if (typeof picked.favor === 'number') n.favor = Math.max(-100, Math.min(100, (n.favor || 0) + picked.favor))
+          if (picked.stateTag) n.stateTag = picked.stateTag
+          n.guidedThisYear = true
+          return n
+        })
+        set({ students: updated })
+        const trig = (picked as any).triggerIncident as string | undefined
+        if (trig) set({ incidentQueue: [...get().incidentQueue, { id: trig, dueYear: store.currentYear + 1 }] })
+        window.dispatchEvent(new CustomEvent('game-message', { detail: `已指导 ${stu.name}` }))
+      },
+
+      attackStudent: (studentId: string, kind: 'verbal'|'physical'|'special', skillId?: string) => {
+        const store = get()
+        const stu = store.students.find(s => s.id === studentId) as any
+        if (!stu) return
+        if (kind !== 'verbal') set({ beatCount: (get() as any).beatCount + 1 })
+        const baseLoss = stu.loyalty >= 50 ? Math.floor(stu.loyalty / 2) : 25
+        const loss = kind === 'verbal' ? Math.floor(baseLoss / 2) : baseLoss
+        const newLoyalty = Math.max(0, stu.loyalty - loss)
+        if (newLoyalty <= 0 && kind !== 'verbal') {
+          // 立即退学与严厉惩罚
+          const remaining = store.students.filter(s => s.id !== studentId)
+          const attr = { ...store.character.attributes }
+          attr.reputation = Math.max(0, attr.reputation - 30)
+          attr.studentLoyalty = -1 as any
+          set({ students: remaining, character: { ...store.character, attributes: attr } })
+          window.dispatchEvent(new CustomEvent('special-incident', { detail: { title: '学生退学', message: `${stu.name} 因遭受殴打并忠诚度归零，已退学。你的口碑显著下降。` } }))
+        } else {
+          const updated = store.students.map(s => s.id === studentId ? { ...s, loyalty: newLoyalty } : s)
+          set({ students: updated })
+        }
+        // 可能触发举报特殊事件
+        if (kind !== 'verbal' && Math.random() < 0.4) {
+          set({ incidentQueue: [...get().incidentQueue, { id: 'incident_assault_report', dueYear: store.currentYear + 1 }] })
+        }
+        const loy = stu.loyalty
+        const roll = Math.random()
+        let reaction = '默不作声'
+        if (kind === 'verbal') {
+          reaction = roll < 0.6 ? '生气' : '默不作声'
+        } else {
+          if (roll < 0.2) reaction = '反击'
+          else if (roll < 0.3) reaction = '奇怪的表情'
+          else if (roll < 0.6) reaction = '生气'
+          else reaction = '默不作声'
+        }
+        if (reaction === '反击') {
+          set({ hospital: true })
+          window.dispatchEvent(new CustomEvent('knockout', { detail: { name: stu.name } }))
+        } else {
+          if (reaction === '奇怪的表情' && kind !== 'verbal') set({ smileThreatYear: store.currentYear + 1 })
+          window.dispatchEvent(new CustomEvent('student-feedback', { detail: { name: stu.name, kind, skillId, reaction, loss } }))
+        }
+      },
+
+      grantFundingToStudent: (studentId: string) => {
+        const store = get()
+        if (store.character.attributes.funding < 2) {
+          window.dispatchEvent(new CustomEvent('game-message', { detail: '经费不足' }))
+          return
+        }
+        const updatedStudents = store.students.map(s => s.id === studentId ? { ...s, loyalty: Math.min(100, s.loyalty + 10) } : s)
+        set({ students: updatedStudents, character: { ...store.character, attributes: { ...store.character.attributes, funding: store.character.attributes.funding - 2 } } })
+        window.dispatchEvent(new CustomEvent('game-message', { detail: '已发经费：忠诚度+10，经费-2' }))
       }
     })
 );

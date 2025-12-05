@@ -1,9 +1,14 @@
 import { useGameStore } from '../store/gameStore'
 import { useState } from 'react'
+import { studentStatuses } from '../data/studentStatus'
+import { guidanceByState } from '../data/studentGuidance'
 
 function StudentManagement() {
-  const { students, currentYear, selectEvent, lastYearActions, eventHistory } = useGameStore()
+  const { students, currentYear, selectEvent, lastYearActions, eventHistory, guideStudent, attackStudent, grantFundingToStudent, attackSkills } = useGameStore()
+  const statusName = (tag?: string) => (studentStatuses.find(s => s.id === tag)?.name) || '无状态'
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null)
+  const [guideOpen, setGuideOpen] = useState<string | null>(null)
+  const [attackOpen, setAttackOpen] = useState<string | null>(null)
 
   const getStudentTypeText = (type: string) => {
     switch (type) {
@@ -70,6 +75,7 @@ function StudentManagement() {
       {/* 学生列表 */}
       <div className="game-card p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">学生详情</h2>
+        <div className="mb-4 text-xs text-blue-700">提示：每位学生每年仅可指导一次</div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {students.map(student => (
             <div key={student.id} className="student-card">
@@ -129,10 +135,51 @@ function StudentManagement() {
                   ></div>
                 </div>
               </div>
-              
+
               {currentYear - student.joinYear >= student.graduationYear && (
                 <div className="mt-3 p-2 bg-yellow-100 text-yellow-800 rounded text-sm text-center">
                   🎓 即将毕业
+                </div>
+              )}
+
+              <div className="mt-3 flex items-center gap-2">
+                <button className="px-3 py-2 bg-blue-600 text-white rounded text-sm" onClick={() => setGuideOpen(guideOpen === student.id ? null : student.id)}>指导</button>
+                <button className="px-3 py-2 bg-red-600 text-white rounded text-sm" onClick={() => setAttackOpen(attackOpen === student.id ? null : student.id)}>攻击</button>
+                <button className="px-3 py-2 bg-green-600 text-white rounded text-sm" onClick={() => grantFundingToStudent(student.id)}>发经费</button>
+              </div>
+
+              {guideOpen === student.id && (
+                <div className="mt-3 p-3 border rounded">
+                  <div className="text-sm mb-2">状态：{statusName((student as any).stateTag)}，选择指导方案</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {(() => {
+                      const tasks = guidanceByState[(student as any).stateTag || 'motivated'] || []
+                      return tasks.map((t: any) => (
+                        <div key={t.id} className="p-2 border rounded">
+                          <div className="text-sm font-medium mb-1">{t.title}</div>
+                          <div className="flex flex-wrap gap-2">
+                            {t.options.map((o: any) => (
+                              <button key={o.id} className="px-2 py-1 bg-blue-500 text-white rounded text-xs" onClick={() => { guideStudent(student.id, t.id, o.id); setGuideOpen(null) }}>{o.text}</button>
+                            ))}
+                          </div>
+                        </div>
+                      ))
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {attackOpen === student.id && (
+                <div className="mt-3 p-3 border rounded">
+                  <div className="text-sm mb-2">选择攻击方式</div>
+                  <div className="flex flex-wrap gap-2">
+                    <button className="px-2 py-1 bg-orange-500 text-white rounded text-xs" onClick={() => { attackStudent(student.id, 'verbal'); setAttackOpen(null) }}>言语攻击（损失减半）</button>
+                    <button className="px-2 py-1 bg-red-600 text-white rounded text-xs" onClick={() => { attackStudent(student.id, 'physical'); setAttackOpen(null) }}>殴打（正常损失）</button>
+                    {attackSkills && attackSkills.length > 0 && attackSkills.map((sk: string) => (
+                      <button key={sk} className="px-2 py-1 bg-purple-600 text-white rounded text-xs" onClick={() => { attackStudent(student.id, 'special', sk); setAttackOpen(null) }}>{sk}</button>
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">言语攻击造成的忠诚度损失为正常的一半；殴打为正常损失</div>
                 </div>
               )}
             </div>

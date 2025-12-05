@@ -2,7 +2,7 @@ import { useGameStore } from '../store/gameStore'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { events } from '../data/events'
-import { endings } from '../data/endings'
+import { endings, normalChainEventIds } from '../data/endings'
 
 function MainGame() {
   const { 
@@ -20,7 +20,7 @@ function MainGame() {
 
   const [modalEventId, setModalEventId] = useState<string | null>(null)
   const modalEvent = useMemo(() => events.find(e => e.id === modalEventId), [modalEventId])
-  const chainEventSet = useMemo(() => new Set(endings.flatMap(e => e.sequence ?? [])), [])
+  const chainEventSet = useMemo(() => new Set([...(endings.flatMap(e => e.sequence ?? [])), ...normalChainEventIds]), [])
 
   useEffect(() => {
     if (!lastYearActions.eventSelected && !modalEventId) {
@@ -35,7 +35,29 @@ function MainGame() {
       if (q.length) {
         setModalEventId(q[0])
       } else {
-        const candidates = events.filter(e => !chainEventSet.has(e.id))
+        const candidates = events.filter(e => !chainEventSet.has(e.id)).filter(e => {
+          if (!e.conditions) return true
+          const { minAttributes, maxAttributes, currentYear: cy, minYear, maxYear, academicRank } = e.conditions
+          const store = useGameStore.getState()
+          const attrs = store.character.attributes
+          const title = store.character.title
+          const curYear = store.currentYear
+          if (cy && cy !== useGameStore.getState().currentYear) return false
+          if (typeof minYear === 'number' && curYear < minYear) return false
+          if (typeof maxYear === 'number' && curYear > maxYear) return false
+          if (academicRank && academicRank.length && !academicRank.includes(title)) return false
+          if (minAttributes) {
+            for (const [k,v] of Object.entries(minAttributes)) {
+              if ((attrs as any)[k] < (v as number)) return false
+            }
+          }
+          if (maxAttributes) {
+            for (const [k,v] of Object.entries(maxAttributes)) {
+              if ((attrs as any)[k] > (v as number)) return false
+            }
+          }
+          return true
+        })
         const pool = candidates.length ? candidates : events
         const r = Math.floor(Math.random() * pool.length)
         setModalEventId(pool[r].id)
@@ -192,7 +214,7 @@ function MainGame() {
           
           <div className="text-center">
             <div className={`text-2xl font-bold ${getAttributeColor(character.attributes.studentLoyalty)}`}>
-              {character.attributes.studentLoyalty}
+              {character.attributes.studentLoyalty.toFixed(1)}
             </div>
             <div className="text-sm text-gray-600">学生忠诚度</div>
           <div className="w-full bg-gray-200 rounded-full h-2 mt-2">

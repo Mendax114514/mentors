@@ -141,5 +141,9 @@ export function checkEnding(params: {
 }
 
 // 任务链起始事件池（用于在链路断开后随机开启新的链路）
-export const chainStartEvents = ['alumni_donation', 'paper_publication', 'department_meeting', 'excellent_teaching_award', 'policy_whitepaper']
+export const chainStartEvents = ['alumni_donation', 'paper_publication', 'department_meeting', 'excellent_teaching_award', 'policy_whitepaper', 'colleague_target_start', 'dean_mentorship_start']
 export const hiddenChainStartEvents = ['alien_clue', 'ai_breakthrough']
+export const normalChainEventIds = [
+  'colleague_target_start','department_politics','committee_battle','clear_name',
+  'dean_mentorship_start','special_funding','prestige_speech','lead_center'
+]

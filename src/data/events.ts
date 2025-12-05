@@ -628,6 +628,18 @@ export const ANNUAL_EVENTS: GameEvent[] = [
     ]
   },
   {
+    id: 'beggar_secret_manual',
+    title: '路边武林秘籍',
+    description: '路边乞丐兜售武林秘籍，是否购买？',
+    category: 'special',
+    rarity: 'rare',
+    weight: 2,
+    options: [
+      { id: 'buy_manual', text: '花费经费购入', attributeCost: { funding: 2 }, results: [ { probability: 100, attributeChanges: {}, message: '你获得了一门武学', giveSkill: '随机' } ] },
+      { id: 'ignore_beggar', text: '无视离开', results: [ { probability: 100, attributeChanges: {}, message: '继续前行' } ] }
+    ]
+  },
+  {
     id: 'media_feature',
     title: '媒体专访',
     description: '主流媒体希望对你的研究进行专访报道',
@@ -875,6 +887,180 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         text: '暂不申请',
         results: [
           { probability: 100, attributeChanges: {}, message: '继续积累教学成果' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'colleague_target_start',
+    title: '被同事针对',
+    description: '系里某些人对你横加指责与刁难，是否应对？',
+    category: 'administration',
+    rarity: 'rare',
+    weight: 2,
+    conditions: { minYear: 12, maxYear: 20 },
+    options: [
+      {
+        id: 'seek_alliance',
+        text: '建立联盟积极沟通',
+        results: [
+          { probability: 70, attributeChanges: { reputation: 2 }, message: '缓解关系，争取到支持', nextEvent: 'department_politics' },
+          { probability: 30, attributeChanges: { reputation: -2 }, message: '沟通未果，影响持续' }
+        ]
+      },
+      {
+        id: 'keep_low_profile',
+        text: '保持低调观望',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '暂避锋芒' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'department_politics',
+    title: '系务角力',
+    description: '参与系务博弈以扭转局面',
+    category: 'administration',
+    rarity: 'epic',
+    weight: 2,
+    options: [
+      {
+        id: 'push_reform',
+        text: '推动系务改革方案',
+        results: [
+          { probability: 70, attributeChanges: { reputation: 3, academicScore: 2 }, message: '改革获得初步支持', nextEvent: 'committee_battle' },
+          { probability: 30, attributeChanges: { reputation: -3 }, message: '遭遇反对，压力倍增' }
+        ]
+      },
+      {
+        id: 'compromise',
+        text: '选择妥协',
+        results: [
+          { probability: 100, attributeChanges: { reputation: -1 }, message: '影响力下降' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'committee_battle',
+    title: '委员会博弈',
+    description: '在重要委员会上争取话语权',
+    category: 'administration',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'present_evidence',
+        text: '提交详尽证据与方案',
+        results: [
+          { probability: 70, attributeChanges: { reputation: 4 }, message: '赢得多数支持', nextEvent: 'clear_name' },
+          { probability: 30, attributeChanges: { reputation: -4 }, message: '方案被否决，形象受损', percentChanges: { funding: -0.2 } }
+        ]
+      },
+      {
+        id: 'withdraw',
+        text: '退出争论',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '避免更大冲突' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'clear_name',
+    title: '名誉澄清',
+    description: '最终澄清指责，影响力提升',
+    category: 'administration',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'official_statement',
+        text: '发布正式声明',
+        results: [
+          { probability: 85, attributeChanges: { reputation: 5 }, message: '名誉修复，影响力大增', percentChanges: { funding: 0.15 } },
+          { probability: 15, attributeChanges: { reputation: 1 }, message: '效果一般' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'dean_mentorship_start',
+    title: '院长提携',
+    description: '院长对你表示欣赏，愿意提携',
+    category: 'administration',
+    rarity: 'epic',
+    weight: 2,
+    conditions: { minAttributes: { reputation: 50 }, minYear: 12, maxYear: 25, academicRank: ['讲师','副教授','教授'] },
+    options: [
+      {
+        id: 'accept_support',
+        text: '接受提携',
+        results: [
+          { probability: 85, attributeChanges: { reputation: 3 }, message: '资源倾斜，机会增加', nextEvent: 'special_funding' },
+          { probability: 15, attributeChanges: { reputation: -1 }, message: '引发部分非议' }
+        ]
+      },
+      {
+        id: 'decline_support',
+        text: '婉拒好意',
+        results: [
+          { probability: 100, attributeChanges: {}, message: '保持独立' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'special_funding',
+    title: '专项经费倾斜',
+    description: '获得专项经费与平台资源',
+    category: 'administration',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'apply_resources',
+        text: '积极申请资源',
+        results: [
+          { probability: 85, attributeChanges: { funding: 20, academicScore: 4 }, message: '资源落地，产出提升', nextEvent: 'prestige_speech' },
+          { probability: 15, attributeChanges: { reputation: -2 }, message: '资源争议，形象受损', percentChanges: { funding: -0.1 } }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'prestige_speech',
+    title: '高层论坛演讲',
+    description: '受邀在高层论坛演讲，提升影响力',
+    category: 'research',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'deliver_speech',
+        text: '发表演讲',
+        results: [
+          { probability: 85, attributeChanges: { reputation: 5 }, message: '广泛认可', nextEvent: 'lead_center' },
+          { probability: 15, attributeChanges: { reputation: -2 }, message: '评价两极' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'lead_center',
+    title: '牵头建设平台',
+    description: '牵头建设研究中心或平台，扩大团队规模',
+    category: 'administration',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'accept_lead',
+        text: '承担牵头职责',
+        results: [
+          { probability: 85, attributeChanges: { reputation: 5 }, message: '平台建设推进', percentChanges: { funding: 0.2 }, },
+          { probability: 15, attributeChanges: { reputation: -3 }, message: '推进受阻，影响力受损', percentChanges: { funding: -0.15 } }
         ]
       }
     ]

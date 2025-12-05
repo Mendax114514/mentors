@@ -10,6 +10,7 @@ import EvaluationSystem from './pages/EvaluationSystem'
 import GameOver from './pages/GameOver'
 import Assessment from './pages/Assessment'
 import Onboarding from './pages/Onboarding'
+import ErrorBoundary from './ui/ErrorBoundary'
 import './index.css'
 
 console.log('Mounting app...')
@@ -36,4 +37,3 @@ ReactDOM.createRoot(rootEl).render(
     </ErrorBoundary>
   </React.StrictMode>,
 )
-import ErrorBoundary from './ui/ErrorBoundary'

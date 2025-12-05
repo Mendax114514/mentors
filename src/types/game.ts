@@ -8,13 +8,15 @@ export interface CharacterAttributes {
 
 // 角色状态接口
 export interface CharacterState {
+  name?: string;                     // 角色名称
+  title?: string;                    // 职称标题
   attributes: CharacterAttributes;
-  equippedItems: Equipment[];
-  inventory: Item[];
-  currentYear: number;
-  academicRank: 'lecturer' | 'associate_professor' | 'professor';  // 学术职称
-  attributePoints: number;           // 可分配的属性点
-  totalAttributePoints: number;    // 总获得属性点
+  equippedItems?: Equipment[];
+  inventory?: Item[];
+  currentYear?: number;
+  academicRank?: 'lecturer' | 'associate_professor' | 'professor';  // 学术职称
+  attributePoints?: number;           // 可分配的属性点
+  totalAttributePoints?: number;    // 总获得属性点
 }
 
 // 学生接口
@@ -28,6 +30,9 @@ export interface Student {
   researchSkill: number;        // 科研能力 (1-10)
   teachingSkill: number;        // 教学能力 (1-10)
   status: 'active' | 'graduated' | 'dropped';
+  favor?: number;               // 隐藏好感度（-100~100）
+  stateTag?: string;            // 学生年度状态（如焦虑、恋爱等），无状态则为空
+  guidedThisYear?: boolean;     // 当年是否已指导
 }
 
 // 学生系统状态
@@ -50,6 +55,8 @@ export interface GameEvent {
     maxAttributes?: Partial<CharacterAttributes>;
     requiredItems?: string[];
     currentYear?: number;
+    minYear?: number;
+    maxYear?: number;
     academicRank?: string[];
   };
   rarity: 'common' | 'rare' | 'epic';
@@ -216,21 +223,33 @@ export interface YearRecord {
 export interface GameState {
   character: CharacterState;
   currentYear: number;
-  annualChoices: {
+  students: any[];                    // 学生列表
+  activeProjects: any[];              // 活跃项目列表
+  availableEvents: GameEvent[];
+  availableProjects: any[];           // 可用项目列表
+  purchasedEquipment: any[];          // 已购买装备
+  gameOver: boolean;
+  gameOverReason: string;
+  lastYearActions: {
     eventSelected: boolean;
     purchaseMade: boolean;
     projectApplied: boolean;
   };
-  activeProject: ActiveProject | null;
-  completedProjects: string[];
-  availableEvents: GameEvent[];
-  purchaseHistory: PurchaseRecord[];
-  yearHistory: YearRecord[];
-  studentSystem: StudentSystemState;
-  evaluationHistory: EvaluationResult[];
-  gameStartTime: number;
-  totalPlayTime: number;
-  version: string;
-  isGameOver: boolean;
-  gameOverReason?: string;
+  studentWorkEfficiency: number;
+  evaluationYear: number;
+  annualChoices?: {
+    eventSelected: boolean;
+    purchaseMade: boolean;
+    projectApplied: boolean;
+  };
+  activeProject?: ActiveProject | null;
+  completedProjects?: string[];
+  purchaseHistory?: PurchaseRecord[];
+  yearHistory?: YearRecord[];
+  studentSystem?: StudentSystemState;
+  evaluationHistory?: EvaluationResult[];
+  gameStartTime?: number;
+  totalPlayTime?: number;
+  version?: string;
+  isGameOver?: boolean;
 }

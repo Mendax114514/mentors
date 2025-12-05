@@ -1,6 +1,8 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useGameStore } from './store/gameStore'
 import { useEffect, useState } from 'react'
+import punchVideo from './source/punch.mp4'
+import smileImg from './source/smile.png'
 
 function App() {
   const { gameOver, character, currentYear, lastYearActions, onboarded } = useGameStore()
@@ -9,6 +11,10 @@ function App() {
   const [msgQueue, setMsgQueue] = useState<string[]>([])
   const [milestoneToast, setMilestoneToast] = useState<{ year: number; next?: number } | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [studentFeedback, setStudentFeedback] = useState<any | null>(null)
+  const [specialIncident, setSpecialIncident] = useState<any | null>(null)
+  const [showPunchVideo, setShowPunchVideo] = useState(false)
+  const [knockout, setKnockout] = useState<any | null>(null)
 
   useEffect(() => {
     if (gameOver && location.pathname !== '/game-over' && location.pathname !== '/assessment') {
@@ -34,6 +40,34 @@ function App() {
     window.addEventListener('milestone-toast', handler as any)
     return () => window.removeEventListener('milestone-toast', handler as any)
   }, [])
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      const detail = e.detail || {}
+      const isPhysical = detail.kind === 'physical'
+      setStudentFeedback({ ...detail })
+      if (isPhysical) setShowPunchVideo(true)
+    }
+    window.addEventListener('student-feedback', handler as any)
+    return () => window.removeEventListener('student-feedback', handler as any)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: any) => setSpecialIncident(e.detail)
+    window.addEventListener('special-incident', handler as any)
+    return () => window.removeEventListener('special-incident', handler as any)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      setKnockout(e.detail)
+      setShowPunchVideo(true)
+      navigate('/')
+      useGameStore.getState().nextYear()
+    }
+    window.addEventListener('knockout', handler as any)
+    return () => window.removeEventListener('knockout', handler as any)
+  }, [navigate])
 
   const canProceedToNextYear = () => {
     return lastYearActions.eventSelected && lastYearActions.purchaseMade && lastYearActions.projectApplied
@@ -132,6 +166,60 @@ function App() {
                 <button onClick={() => setMilestoneToast(null)} className={`${(milestoneToast as any).type === 'pre' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'} px-5 py-2 text-white font-semibold rounded`}>继续</button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {studentFeedback && (!showPunchVideo || studentFeedback.kind !== 'physical') && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            <div className="bg-gradient-to-r from-red-600 to-pink-600 px-8 py-6 text-center text-white">
+              <div className="text-6xl mb-3">⚡</div>
+              <h3 className="text-2xl font-bold mb-1">学生反馈</h3>
+              <p className="opacity-90">{studentFeedback.name}</p>
+            </div>
+            <div className="p-6 space-y-3">
+              <div className="text-gray-800">类型：{studentFeedback.kind === 'verbal' ? '言语攻击' : studentFeedback.kind === 'physical' ? '殴打' : `特殊攻击（${studentFeedback.skillId}）`}</div>
+              <div className="text-gray-800">反应：{studentFeedback.reaction === '奇怪的表情' ? '学生露出了奇怪的表情' : studentFeedback.reaction}</div>
+              <div className="text-gray-800">忠诚度损失：{studentFeedback.loss}</div>
+              {studentFeedback.reaction === '奇怪的表情' && (
+                <div className="mt-2 flex justify-center">
+                  <img src={smileImg} alt="奇怪的微笑" className="rounded shadow max-w-[160px] h-auto" />
+                </div>
+              )}
+              <div className="text-right pt-2">
+                <button className="px-4 py-2 bg-red-600 text-white rounded" onClick={() => setStudentFeedback(null)}>关闭</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {specialIncident && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden animate-[pulse_1.2s_ease_in_out]">
+            <div className="bg-gradient-to-r from-black to-red-700 px-8 py-6 text-center text-white">
+              <div className="text-6xl mb-3">⚠️</div>
+              <h3 className="text-2xl font-bold mb-1">{specialIncident.title}</h3>
+              <p className="opacity-90">特殊事件</p>
+            </div>
+            <div className="p-6 space-y-3">
+              <div className="text-gray-800 whitespace-pre-line">{specialIncident.message}</div>
+              <div className="text-right pt-2">
+                <button className="px-4 py-2 bg-gray-900 text-white rounded" onClick={() => setSpecialIncident(null)}>我知道了</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPunchVideo && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="w-[90vw] max-w-4xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
+            <video src={punchVideo} autoPlay muted playsInline className="w-full h-full object-cover" onEnded={() => {
+              setShowPunchVideo(false)
+              setKnockout(null)
+            }} />
           </div>
         </div>
       )}
