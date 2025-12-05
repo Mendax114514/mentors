@@ -23,6 +23,7 @@ interface GameStore extends GameState {
     studentCapBonus?: number;
   };
   attackSkills: string[];
+  hospital: boolean;
   // 游戏控制方法
   nextYear: () => void;
   selectEvent: (eventId: string) => void;

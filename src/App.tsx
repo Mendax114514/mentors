@@ -62,14 +62,14 @@ function App() {
     const handler = (e: any) => {
       setKnockout(e.detail)
       setShowPunchVideo(true)
-      navigate('/')
-      useGameStore.getState().nextYear()
     }
     window.addEventListener('knockout', handler as any)
     return () => window.removeEventListener('knockout', handler as any)
-  }, [navigate])
+  }, [])
 
   const canProceedToNextYear = () => {
+    // 如果处于医院状态，可以强制进入下一年
+    if ((useGameStore.getState() as any).hospital) return true
     return lastYearActions.eventSelected && lastYearActions.purchaseMade && lastYearActions.projectApplied
   }
 
@@ -213,12 +213,37 @@ function App() {
         </div>
       )}
 
+      {knockout && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            <div className="bg-gradient-to-r from-red-600 to-orange-600 px-8 py-6 text-center text-white">
+              <div className="text-6xl mb-3">💥</div>
+              <h3 className="text-2xl font-bold mb-1">学生反击</h3>
+              <p className="opacity-90">你被学生反击了！</p>
+            </div>
+            <div className="p-6 space-y-3">
+              <div className="text-gray-800 text-center">
+                {knockout.name} 对你的攻击进行了反击！你倒地住院一周，期间无法推进年度事务。
+              </div>
+              <div className="text-gray-600 text-sm text-center">
+                下一年将会自动进入养病状态，暂时无法进行任何活动。
+              </div>
+              <div className="text-right pt-2">
+                <button className="px-4 py-2 bg-orange-600 text-white rounded" onClick={() => {
+                  setKnockout(null)
+                  useGameStore.getState().nextYear()
+                }}>我知道了</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showPunchVideo && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
           <div className="w-[90vw] max-w-4xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl">
             <video src={punchVideo} autoPlay muted playsInline className="w-full h-full object-cover" onEnded={() => {
               setShowPunchVideo(false)
-              setKnockout(null)
             }} />
           </div>
         </div>
