@@ -21,9 +21,23 @@ interface GameStore extends GameState {
     loyaltyRateBonus?: number;
     sinValue?: number;
     studentCapBonus?: number;
+    projectMultiplierEnterprise?: number;
+    projectMultiplierNational?: number;
   };
   attackSkills: string[];
   hospital: boolean;
+  beatCount: number;
+  assassinationEligibleFromYear: number | undefined;
+  smileThreatYear: number | undefined;
+  assessmentPlan: number[];
+  yearReverts: Array<{ dueYear: number; attr: Partial<CharacterAttributes>; loyaltyRateBonus?: number }>;
+  pendingEvents: string[];
+  eventHistory: Array<{ year: number; eventId: string; optionId: string; message: string; changes: Partial<CharacterAttributes> }>;
+  scheduledEvents: Array<{ id: string; dueYear: number }>;
+  chainState: { active: boolean };
+  hiddenChainAttempted: boolean;
+  incidentQueue: Array<{ id: string; dueYear: number; payload?: any }>;
+  gameOverTier: undefined | 'hidden' | 'legendary' | 'normal';
   // 游戏控制方法
   nextYear: () => void;
   selectEvent: (eventId: string) => void;
@@ -33,18 +47,20 @@ interface GameStore extends GameState {
   startNewGame: () => void;
   loadGame: (saveData: GameState) => void;
   setOnboarded: () => void;
-  
+
   // 学生管理
   recruitStudents: () => void;
   graduateStudents: () => void;
   guideStudent: (studentId: string, taskId: string, optionId: string) => void;
   attackStudent: (studentId: string, kind: 'verbal'|'physical'|'special', skillId?: string) => void;
   grantFundingToStudent: (studentId: string) => void;
-  
+
   // 项目相关
-  updateActiveProjects: () => void;
+  updateActiveProjects: () => {
+    // Placeholder for updating active projects
+  };
   completeProject: (projectId: string) => void;
-  
+
   // 评估相关
   checkEvaluation: () => boolean;
   getEvaluationResult: () => { passed: boolean; message: string };
@@ -127,7 +143,7 @@ export const useGameStore = create<GameStore>()(
                 startId = pool[Math.floor(Math.random() * pool.length)]
               }
             }
-            const dueYear = 10 + Math.floor(Math.random() * 6)
+            const dueYear = 5 + Math.floor(Math.random() * 6)
             return [{ id: startId, dueYear }]
           })(),
           chainState: { active: false },
@@ -187,7 +203,71 @@ export const useGameStore = create<GameStore>()(
           }
         }
 
-        // 特殊事件在年初优先触发
+        // 罪恶值强制阶下囚路线：从罪恶8开始，每年强制推一个事件，无选择影响
+        const haAux = get().hiddenAttributes as any
+        const sinVal = haAux.sinValue || 0
+        const imprisonedSeq = ['report_scandal', 'disciplinary_hearing', 'evidence_escalation', 'court_trial']
+        let completedImprisonedIdx = -1
+        for (let i = 0; i < imprisonedSeq.length; i++) {
+          const evId = imprisonedSeq[i]
+          const found = get().eventHistory.find(h => h.eventId === evId)
+          if (!found) break
+          completedImprisonedIdx = i
+        }
+        if (sinVal >= 8 && completedImprisonedIdx < imprisonedSeq.length - 1) {
+          const nextEv = imprisonedSeq[completedImprisonedIdx + 1]
+          if (!get().eventHistory.find(h => h.eventId === nextEv)) {
+            // 强制推送下一事件到pendingEvent（第一届选择自动选择恶化那个）
+            const badOpts = get().availableEvents.find(ev => ev.id === nextEv)?.options.filter(opt =>
+              opt.results.some(r => r.attributeChanges.reputation < 0 || (r as any).sinValue)
+            ) || []
+            if (badOpts.length) {
+              set({ pendingEvents: [...get().pendingEvents, nextEv] })
+            }
+          }
+        }
+
+        // 特殊事件在年初优先触发（5%概率或学生状态触发）
+        let specialTrigger = ''
+        if (Math.random() < 0.05) { // 5%概率
+          // 随机选择一个普通特殊事件
+          const normalSpecials = ['fire_alarm', 'earthquake', 'power_outage', 'financial_audit']
+          const randSpecial = normalSpecials[Math.floor(Math.random() * normalSpecials.length)]
+          specialTrigger = randSpecial
+        }
+        // 学生状态触发特殊事件：如抑郁学生被说去死，第二年跳楼
+        const lastYearEvents = get().eventHistory.filter(h => h.year === newYearVal - 1)
+        for (const h of lastYearEvents) {
+          if (h.eventId === 'guidance_depressed' && h.optionId === 'tell_die') {
+            specialTrigger = 'student_suicide' // 使用字符串标识
+          }
+        }
+        if (specialTrigger) {
+          if (specialTrigger === 'student_suicide') {
+            // 学生跳楼：声望-20, 学生忠诚-20
+            set({ character: { ...get().character, attributes: {
+              ...get().character.attributes,
+              reputation: Math.max(0, get().character.attributes.reputation - 20),
+              studentLoyalty: Math.max(0, get().character.attributes.studentLoyalty - 20)
+            }}})
+            window.dispatchEvent(new CustomEvent('special-incident', { detail: { title: '学生自杀事件', message: '一名学生在校园跳楼自杀，校园震惊，你作为导师受到牵连，声望和学生忠诚度严重下降。' } }))
+          } else {
+            // 其他随机特殊事件（学术相关）
+            const normals: Record<string, { title: string, message: string, effects: Partial<CharacterAttributes> & { studentCapBonus?: number; reputation?: number; funding?: number; academicScore?: number } }> = {
+              'fire_alarm': { title: '学术造假曝光', message: '您的论文被发现数据造假，遭受学术界重罚，声望大损', effects: { reputation: -15 } },
+              'earthquake': { title: '院长赏识', message: '院长注意到您的贡献，给予特殊奖励', effects: { funding: +20, reputation: +5 } },
+              'power_outage': { title: '国际会议邀请', message: '收到国际顶级会议邀请并获最佳论文奖', effects: { reputation: +10, academicScore: +5 } },
+              'financial_audit': { title: '外部资金到期', message: '大笔外部资助到期，导致经费紧缩', effects: { funding: -15, academicScore: -3 } }
+            }
+            const evDef = normals[specialTrigger as string] || { title: '未知事件', message: '', effects: {} }
+            set({ character: { ...get().character, attributes: {
+              ...get().character.attributes,
+              ...evDef.effects
+            }}})
+            window.dispatchEvent(new CustomEvent('special-incident', { detail: { title: evDef.title, message: evDef.message } }))
+          }
+        }
+
         const idx = get().incidentQueue.findIndex(i => i.dueYear === newYearVal)
         if (idx >= 0) {
           const inc = get().incidentQueue[idx]
@@ -206,17 +286,18 @@ export const useGameStore = create<GameStore>()(
         const statusById: Record<string, any> = {}
         studentStatuses.forEach(s => statusById[s.id] = s)
         const updatedStudents = get().students.map(stu => {
-          const s = { ...stu } as any
+          const s: any = { ...stu }
           // 每年重置指导标记
           s.guidedThisYear = false
+          // 每年有30%概率重新分配状态
+          if (!s.stateTag || Math.random() < 0.3) {
+            const maybe = randomStatus()
+            s.stateTag = maybe
+          }
           const tag = s.stateTag
           if (tag && statusById[tag]) {
             const eff = statusById[tag].effects
             if (eff?.passiveDrift?.loyalty) s.loyalty = Math.max(0, Math.min(100, s.loyalty + eff.passiveDrift.loyalty))
-          }
-          if (!s.stateTag) {
-            const maybe = randomStatus()
-            s.stateTag = maybe
           }
           s.loyalty = Math.min(100, s.loyalty + 10)
           return s

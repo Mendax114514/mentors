@@ -22,10 +22,13 @@ export const studentStatuses: StudentStatus[] = [
 export const statusAssignConfig = {
   enable: true,
   probabilities: [
-    { id: 'anxiety', p: 0.25 },
-    { id: 'in_love', p: 0.15 },
-    { id: 'burnout', p: 0.15 },
-    { id: 'motivated', p: 0.2 },
+    { id: 'anxiety', p: 0.10 },
+    { id: 'in_love', p: 0.06 },
+    { id: 'burnout', p: 0.06 },
+    { id: 'motivated', p: 0.08 },
+    { id: 'lazy', p: 0.06 },
+    { id: 'moyu', p: 0.06 },
+    { id: 'yuyu', p: 0.03 },
   ]
 }
 

@@ -85,6 +85,31 @@ export const endings: EndingRule[] = [
     },
     minAttrs: { studentLoyalty: 90, reputation: 85 },
   },
+  {
+    id: 'research_partner_ending',
+    name: '传奇结局：科研伴侣幸福',
+    tier: 'legendary',
+    sequence: ['research_partner_encounter', 'research_partner_develop', 'research_partner_commit', 'research_partner_bliss'],
+    sequenceOptions: {
+      research_partner_encounter: 'pursue_partner',
+      research_partner_develop: 'collaborate_research',
+      research_partner_commit: 'accept_commitment',
+      research_partner_bliss: 'embrace_life'
+    },
+    minAttrs: { reputation: 50, academicScore: 50 },
+  },
+  {
+    id: 'student_love_ending',
+    name: '传说结局：学生深情',
+    tier: 'hidden',
+    sequence: ['student_confession', 'student_relationship_secret', 'student_relationship_exposed'],
+    sequenceOptions: {
+      student_confession: 'accept_confession',
+      student_relationship_secret: '繼續_secret',
+      student_relationship_exposed: 'admit_and_resign'
+    },
+    minAttrs: { reputation: -20 },
+  },
 ]
 
 export function checkEnding(params: {
@@ -141,7 +166,7 @@ export function checkEnding(params: {
 }
 
 // 任务链起始事件池（用于在链路断开后随机开启新的链路）
-export const chainStartEvents = ['alumni_donation', 'paper_publication', 'department_meeting', 'excellent_teaching_award', 'policy_whitepaper', 'colleague_target_start', 'dean_mentorship_start']
+export const chainStartEvents = ['alumni_donation', 'paper_publication', 'department_meeting', 'excellent_teaching_award', 'policy_whitepaper', 'colleague_target_start', 'dean_mentorship_start', 'research_partner_encounter', 'student_confession']
 export const hiddenChainStartEvents = ['alien_clue', 'ai_breakthrough']
 export const normalChainEventIds = [
   'colleague_target_start','department_politics','committee_battle','clear_name',

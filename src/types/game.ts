@@ -59,7 +59,7 @@ export interface GameEvent {
     maxYear?: number;
     academicRank?: string[];
   };
-  rarity: 'common' | 'rare' | 'epic';
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
   weight: number;  // 事件生成权重
 }
 
@@ -83,6 +83,9 @@ export interface EventResult {
   items?: Equipment[];
   message: string;
   nextEvent?: string;  // 连锁事件ID
+  sinValue?: number;   // 罪恶值增加
+  percentChanges?: Record<string, number>;  // 百分比变化
+  giveSkill?: string;  // 武学技能
 }
 
 // 项目接口

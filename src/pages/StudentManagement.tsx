@@ -136,11 +136,25 @@ function StudentManagement() {
                 </div>
               </div>
 
-              {currentYear - student.joinYear >= student.graduationYear && (
-                <div className="mt-3 p-2 bg-yellow-100 text-yellow-800 rounded text-sm text-center">
-                  🎓 即将毕业
+              {/* 学生状态标签 */}
+              <div className="mt-2 flex flex-wrap gap-2">
+                <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  statusName((student as any).stateTag) === '正常' ? 'bg-gray-100 text-gray-800' :
+                  statusName((student as any).stateTag) === '抑郁症' ? 'bg-red-100 text-red-800' :
+                  statusName((student as any).stateTag) === '恋爱' ? 'bg-pink-100 text-pink-800' :
+                  statusName((student as any).stateTag) === '焦虑' ? 'bg-orange-100 text-orange-800' :
+                  statusName((student as any).stateTag) === '倦怠' ? 'bg-gray-100 text-gray-800' :
+                  'motivated' === (student as any).stateTag ? 'bg-green-100 text-green-800' :
+                  'bg-blue-100 text-blue-800'
+                }`}>
+                  {statusName((student as any).stateTag) || '正常'}
                 </div>
-              )}
+                {currentYear - student.joinYear >= student.graduationYear && (
+                  <div className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                    🎓 即将毕业
+                  </div>
+                )}
+              </div>
 
               <div className="mt-3 flex items-center gap-2">
                 <button className="px-3 py-2 bg-blue-600 text-white rounded text-sm" onClick={() => setGuideOpen(guideOpen === student.id ? null : student.id)}>指导</button>

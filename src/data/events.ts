@@ -1620,6 +1620,254 @@ export const ANNUAL_EVENTS: GameEvent[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'research_partner_encounter',
+    title: '研发生伴遇见',
+    description: '国际会议上你遇到一位同行，让你一见钟情',
+    category: 'special',
+    rarity: 'epic',
+    weight: 1,
+    options: [
+      {
+        id: 'pursue_partner',
+        text: '主动追求',
+        results: [
+          {
+            probability: 70,
+            attributeChanges: {},
+            message: '你们开始频繁交流，感情迅速升温',
+            nextEvent: 'research_partner_develop',
+            sinValue: 1
+          },
+          {
+            probability: 30,
+            attributeChanges: { reputation: -5 },
+            message: 'TA婉拒了你的示好，传闻不胫而走'
+          }
+        ]
+      },
+      {
+        id: 'keep_professional',
+        text: '保持专业',
+        results: [
+          {
+            probability: 100,
+            attributeChanges: {},
+            message: '你们保持学术交流，关系发展得很自然'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'research_partner_develop',
+    title: '科研伴侣深化',
+    description: '与科研伴侣的关系稳步进展，你们考虑共同事业',
+    category: 'special',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'collaborate_research',
+        text: '共同科研',
+        results: [
+          {
+            probability: 80,
+            attributeChanges: { academicScore: 5, reputation: 2 },
+            message: '你们联手发表了几篇高质量论文，学术影响力大增',
+            nextEvent: 'research_partner_commit',
+            sinValue: 1
+          },
+          {
+            probability: 20,
+            attributeChanges: { reputation: -3 },
+            message: '项目进度慢，引发了争议'
+          }
+        ]
+      },
+      {
+        id: 'wait_and_see',
+        text: '静观其变',
+        results: [
+          {
+            probability: 100,
+            attributeChanges: {},
+            message: '感情稳定，你们继续保持联系'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'research_partner_commit',
+    title: '科研伴侣承诺',
+    description: '科研伴侣向你告白，表达了共同生活的愿望',
+    category: 'special',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'accept_commitment',
+        text: '接受承诺',
+        results: [
+          {
+            probability: 90,
+            attributeChanges: { reputation: 5, studentLoyalty: 2 },
+            message: '你们官宣关系，成为学术界的佳话',
+            nextEvent: 'research_partner_bliss'
+          },
+          {
+            probability: 10,
+            attributeChanges: { reputation: -10 },
+            message: '关系引发了极大争议，你们决定分开',
+            sinValue: 1
+          }
+        ]
+      },
+      {
+        id: 'delay_commitment',
+        text: '暂缓决定',
+        results: [
+          {
+            probability: 100,
+            attributeChanges: {},
+            message: '你们关系继续，但有不确定因素'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'research_partner_bliss',
+    title: '与科研伴侣共同幸福',
+    description: '与科研伴侣共同生活，学术与生活和谐优雅',
+    category: 'special',
+    rarity: 'legendary',
+    weight: 1,
+    options: [{
+      id: 'embrace_life',
+      text: '拥抱生活',
+      results: [{ probability: 100, attributeChanges: { reputation: 3, academicScore: 5, funding: 10 }, message: '你们共同成就了许多，后期和谐美满' }]
+    }]
+  },
+  {
+    id: 'student_confession',
+    title: '学生表白',
+    description: '一名优秀学生走进办公室，向你表白说喜欢你',
+    category: 'special',
+    rarity: 'rare',
+    weight: 2,
+    options: [
+      {
+        id: 'reject_confession',
+        text: '拒绝表白',
+        results: [
+          {
+            probability: 100,
+            attributeChanges: {},
+            message: '你理性劝解，学生离开，但没有后续'
+          }
+        ]
+      },
+      {
+        id: 'accept_confession',
+        text: '接受表白',
+        results: [
+          {
+            probability: 50,
+            attributeChanges: {},
+            message: '你们开始秘密交往，确实验证了感情',
+            nextEvent: 'student_relationship_secret'
+          },
+          {
+            probability: 50,
+            attributeChanges: { reputation: -30 },
+            message: '学生录下证据举报你，学校停职两年调查',
+            sinValue: 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'student_relationship_secret',
+    title: '学生恋人秘密',
+    description: '与学生的关系继续，但始终保持秘密',
+    category: 'special',
+    rarity: 'epic',
+    weight: 1,
+    options: [
+      {
+        id: '繼續_secret',
+        text: '继续秘密关系',
+        results: [
+          {
+            probability: 70,
+            attributeChanges: { studentLoyalty: 5 },
+            message: '关系稳定，学生支持你工作',
+            nextEvent: 'student_relationship_exposed',
+            sinValue: 1
+          },
+          {
+            probability: 30,
+            attributeChanges: { reputation: -15 },
+            message: '关系泄露，引发轩然大波',
+            sinValue: 1
+          }
+        ]
+      },
+      {
+        id: 'end_relationship',
+        text: '结束关系',
+        results: [
+          {
+            probability: 100,
+            attributeChanges: { studentLoyalty: -20 },
+            message: '学生伤心离开，你感到愧疚'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'student_relationship_exposed',
+    title: '学生恋人曝光',
+    description: '关系最终曝光，你面临选择',
+    category: 'special',
+    rarity: 'legendary',
+    weight: 1,
+    options: [
+      {
+        id: 'deny_everything',
+        text: '否认一切',
+        results: [
+          {
+            probability: 60,
+            attributeChanges: { reputation: -10, studentLoyalty: -15 },
+            message: '调查不力，你暂时躲过，但口碑受损',
+            sinValue: 1
+          },
+          {
+            probability: 40,
+            attributeChanges: { reputation: -50 },
+            message: '证据确凿，你被解雇'
+          }
+        ]
+      },
+      {
+        id: 'admit_and_resign',
+        text: '承认并辞职',
+        results: [
+          {
+            probability: 100,
+            attributeChanges: { reputation: -20 },
+            message: '你离开学校，与学生共度生活，但名声扫地',
+            sinValue: 1
+          }
+        ]
+      }
+    ]
   }
 ];
 
